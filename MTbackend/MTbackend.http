@@ -1,0 +1,6 @@
+@MTbackend_HostAddress = http://localhost:5242
+
+GET {{MTbackend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

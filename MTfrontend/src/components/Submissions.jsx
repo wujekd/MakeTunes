@@ -1,13 +1,8 @@
 import React from 'react';
 import SubmissionItem from './SubmissionItem';
 
-const Submissions = ({ onAddToFavorites }) => {
+const Submissions = ({ onAddToFavorites, mockSubmissions }) => {
   
-  const mockSubmissions = [
-    { id: 1, title: 'Submission 1', author: 'User 1', audioUrl: '#' },
-    { id: 2, title: 'Submission 2', author: 'User 2', audioUrl: '#' },
-    { id: 3, title: 'Submission 3', author: 'User 3', audioUrl: '#' },
-  ];
 
   return (
     <section className="submissions-section col-span-5 row-span-3">

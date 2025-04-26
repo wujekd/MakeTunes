@@ -2,18 +2,22 @@ import React, { useState } from 'react';
 
 const SubmissionItem = ({ submission, onAddToFavorites }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState(67);
 
   const handlePlayClick = () => {
     setIsPlaying(!isPlaying);
     
   };
 
+
   const handleAddToFavorites = () => {
     if (onAddToFavorites) {
-      onAddToFavorites(submission);
+      onAddToFavorites(submission); 
+      console.log('Added to favorites');
+      console.log(submission);
     }
   };
+
 
   return (
     <div className="submission-container">
@@ -21,11 +25,14 @@ const SubmissionItem = ({ submission, onAddToFavorites }) => {
         <div className="progress-bar" style={{ width: `${progress}%` }}></div>
         <span className="play-icon">{isPlaying ? '❚❚' : '▶'}</span>
       </button>
-      <button className="favorite-button" onClick={handleAddToFavorites}>
-        Add to favorites
-      </button>
+      {onAddToFavorites && (
+        <button className="favorite-button" onClick={handleAddToFavorites}>
+          Add to favorites
+        </button>
+      )}
     </div>
   );
 };
 
-export default SubmissionItem; 
+
+export default SubmissionItem;

@@ -1,23 +1,33 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useAudio } from '../contexts/AudioContext';
 
-const Mixer = () => {
-    const [backingVolume, setBackingVolume] = useState(1);
-    const [masterVolume, setMasterVolume] = useState(1);
-    const [isPlaying, setIsPlaying] = useState(false);
+const Mixer = ({ submissions }) => {
+    const { 
+        isPlaying, 
+        masterVolume, 
+        backingVolume, 
+        togglePlay, 
+        setMasterVolume, 
+        setBackingVolume,
+        nextTrack,
+        previousTrack
+    } = useAudio();
 
     const handleBackingVolumeChange = (e) => {
-        setBackingVolume(e.target.value);
+        setBackingVolume(parseFloat(e.target.value));
     }
 
     const handleMasterVolumeChange = (e) => {
-        setMasterVolume(e.target.value);
+        setMasterVolume(parseFloat(e.target.value));
     }
 
-    const togglePlay = () => {
-        setIsPlaying(!isPlaying);
+    const handlePrevTrack = () => {
+        previousTrack(submissions);
     }
 
-
+    const handleNextTrack = () => {
+        nextTrack(submissions);
+    }
 
     return (
         <section className='mixer-section col-span-2 row-span-3' id='mixer'>
@@ -25,7 +35,7 @@ const Mixer = () => {
             <audio src="" className='hidden-audio' id="master-player"></audio>
 
             <div className="transport">
-                <button id="back-btn">
+                <button id="back-btn" onClick={handlePrevTrack}>
                     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff">
                         <path d="M4 12H20M4 12L8 8M4 12L8 16" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
                     </svg>
@@ -42,7 +52,7 @@ const Mixer = () => {
                         </svg>
                     )}
                 </button>
-                <button id="fwd-btn">
+                <button id="fwd-btn" onClick={handleNextTrack}>
                     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff" transform="rotate(180)">
                         <path d="M4 12H20M4 12L8 8M4 12L8 16" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
                     </svg>

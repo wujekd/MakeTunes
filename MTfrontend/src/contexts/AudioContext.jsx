@@ -11,6 +11,8 @@ export const AudioProvider = ({ children }) => {
   const [currentTrackId, setCurrentTrackId] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   
   // Audio nodes
   const [masterGainNode, setMasterGainNode] = useState(null);
@@ -115,16 +117,20 @@ export const AudioProvider = ({ children }) => {
       setMasterSource(oscillator);
       setIsPlaying(true);
       
+      // Set duration for test oscillator
+      const testDuration = 10; // 10 seconds
+      setDuration(testDuration);
+      
       // Simulate progress for 10 seconds
       let startTime = audioContextRef.current.currentTime;
-      const duration = 10; // 10 seconds
       
       const updateProgress = () => {
         if (!isPlaying) return;
         
         const elapsed = audioContextRef.current.currentTime - startTime;
-        const progressValue = (elapsed / duration) * 100;
+        const progressValue = (elapsed / testDuration) * 100;
         setProgress(progressValue);
+        setCurrentTime(elapsed);
         
         if (progressValue < 100) {
           requestAnimationFrame(updateProgress);
@@ -132,6 +138,7 @@ export const AudioProvider = ({ children }) => {
           oscillator.stop();
           setIsPlaying(false);
           setProgress(0);
+          setCurrentTime(0);
         }
       };
       
@@ -159,25 +166,29 @@ export const AudioProvider = ({ children }) => {
         source.buffer = audioBuffer;
         source.connect(masterGainNode);
         
+        // Set the duration
+        setDuration(audioBuffer.duration);
+        
         // Start playback
         source.start();
         setMasterSource(source);
         setIsPlaying(true);
         
         // Track progress
-        const duration = audioBuffer.duration;
         const startTime = audioContextRef.current.currentTime;
         
         const updateProgress = () => {
           const elapsed = audioContextRef.current.currentTime - startTime;
-          const progressValue = Math.min((elapsed / duration) * 100, 100);
+          const progressValue = Math.min((elapsed / audioBuffer.duration) * 100, 100);
           setProgress(progressValue);
+          setCurrentTime(elapsed);
           
           if (progressValue < 100 && isPlaying) {
             requestAnimationFrame(updateProgress);
           } else if (progressValue >= 100) {
             setIsPlaying(false);
             setProgress(0);
+            setCurrentTime(0);
           }
         };
         
@@ -187,7 +198,7 @@ export const AudioProvider = ({ children }) => {
         console.error('Error loading audio:', error);
         setError(`Error loading audio: ${error.message}`);
         
-        // Fall back to oscillator for debuggind
+        // Fall back to oscillator for debugging
         console.log('Falling back to oscillator for demonstration');
         const oscillator = audioContextRef.current.createOscillator();
         oscillator.type = 'sine';
@@ -197,16 +208,20 @@ export const AudioProvider = ({ children }) => {
         setMasterSource(oscillator);
         setIsPlaying(true);
         
+        // Set duration for test oscillator
+        const testDuration = 10; // 10 seconds
+        setDuration(testDuration);
+        
         // Simulate progress for 10 seconds
         let startTime = audioContextRef.current.currentTime;
-        const duration = 10; // 10 seconds
         
         const updateProgress = () => {
           if (!isPlaying) return;
           
           const elapsed = audioContextRef.current.currentTime - startTime;
-          const progressValue = (elapsed / duration) * 100;
+          const progressValue = (elapsed / testDuration) * 100;
           setProgress(progressValue);
+          setCurrentTime(elapsed);
           
           if (progressValue < 100) {
             requestAnimationFrame(updateProgress);
@@ -214,6 +229,7 @@ export const AudioProvider = ({ children }) => {
             oscillator.stop();
             setIsPlaying(false);
             setProgress(0);
+            setCurrentTime(0);
           }
         };
         
@@ -261,6 +277,8 @@ export const AudioProvider = ({ children }) => {
     currentTrackId,
     isPlaying,
     progress,
+    currentTime,
+    duration,
     masterVolume,
     backingVolume,
     error,

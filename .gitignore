@@ -502,3 +502,4 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+/beat-code/.obsidian

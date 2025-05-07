@@ -1,4 +1,5 @@
 import React from 'react';
+import Display from './Display';
 
 const InfoTop = () => {
   return (
@@ -8,10 +9,7 @@ const InfoTop = () => {
         <p>Votes: 0</p>
         <h3 className="text-gray-500 text-xl">Author</h3>
       </div>
-      <p>Project description goes here</p>
-      <div className="flex">
-        <img src="https://via.placeholder.com/140" alt="Cover" className="rounded" />
-      </div>
+      <Display />
     </section>
   );
 };

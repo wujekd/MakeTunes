@@ -6,7 +6,8 @@ const SubmissionItem = ({ submission, onAddToFavorites }) => {
     playTrack, 
     currentTrackId, 
     isPlaying, 
-    progress 
+    progress,
+    togglePlay
   } = useAudio();
 
   const isCurrentTrack = currentTrackId === submission.id;
@@ -16,7 +17,13 @@ const SubmissionItem = ({ submission, onAddToFavorites }) => {
     console.log(`Playing track: ${submission.id} from ${submission.audioUrl}`);
   };
 
+  const handlePauseClick = () => {
+    togglePlay();
+    console.log(`Pausing track: ${submission.id}`);
+  };
+
   const handleAddToFavorites = () => {
+    console.log('testy');
     if (onAddToFavorites) {
       onAddToFavorites(submission); 
       console.log('Added to favorites');
@@ -37,7 +44,7 @@ const SubmissionItem = ({ submission, onAddToFavorites }) => {
 
   return (
     <div className="submission-container" style={containerStyle}>
-      <button className="play-button" onClick={handlePlayClick}>
+      <button className="play-button" onClick={(isPlaying && isCurrentTrack) ? handlePauseClick : handlePlayClick}>
         <div className="progress-bar" style={{ width: `${displayProgress}%` }}></div>
         <span className="play-icon">{isCurrentTrack && isPlaying ? '❚❚' : '▶'}</span>
       </button>
@@ -46,7 +53,7 @@ const SubmissionItem = ({ submission, onAddToFavorites }) => {
           className="favorite-button" 
           onClick={handleAddToFavorites}
           // Enable the favorite button if this track is being played or progress is >= 80%
-          disabled={!(isCurrentTrack && (progress >= 80))}
+          // disabled={!(isCurrentTrack)}
         >
           Add to favorites
         </button>

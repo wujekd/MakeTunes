@@ -129,7 +129,8 @@ html, body {
   width: 0%;
   top: 0;
   left: 0;
-  transition: width 0.2s linear;
+  transition: none;
+  will-change: width;
 }
 
 .play-icon {
@@ -155,8 +156,14 @@ html, body {
   transition: all 0.2s ease;
 }
 
-.favorite-button:hover {
+.favorite-button:hover:not(:disabled) {
   background-color: var(--contrast-600);
+}
+
+.favorite-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--gray-500);
 }
 
 /* Submissions section */

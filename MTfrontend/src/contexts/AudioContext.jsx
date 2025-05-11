@@ -34,7 +34,7 @@ export const AudioProvider = ({ children }) => {
     try {
       // Create Audio Context
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      audioContextRef.current = new AudioCtx();
+      audioContextRef.current = new AudioCtx(); // Put the audio context in the ref
       
       // Create gain nodes
       const masterGain = audioContextRef.current.createGain();
@@ -103,49 +103,14 @@ export const AudioProvider = ({ children }) => {
       }
     }
     
+    // Reset progress and time immediately when switching tracks
+    setProgress(0);
+    setCurrentTime(0);
+    
     // Set the current track ID
     setCurrentTrackId(trackId);
     
-    // For testing with mock audio, use a built-in oscillator if URL contains 'track'
-    if (audioUrl.includes('track') && !audioUrl.endsWith('.mp3') && !audioUrl.endsWith('.wav')) {
-      console.log('Using test oscillator for mock audio');
-      const oscillator = audioContextRef.current.createOscillator();
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(440, audioContextRef.current.currentTime); // A4 note
-      oscillator.connect(masterGainNode);
-      oscillator.start();
-      setMasterSource(oscillator);
-      setIsPlaying(true);
-      
-      // Set duration for test oscillator
-      const testDuration = 10; // 10 seconds
-      setDuration(testDuration);
-      
-      // Simulate progress for 10 seconds
-      let startTime = audioContextRef.current.currentTime;
-      
-      const updateProgress = () => {
-        if (!isPlaying) return;
-        
-        const elapsed = audioContextRef.current.currentTime - startTime;
-        const progressValue = (elapsed / testDuration) * 100;
-        setProgress(progressValue);
-        setCurrentTime(elapsed);
-        
-        if (progressValue < 100) {
-          requestAnimationFrame(updateProgress);
-        } else {
-          oscillator.stop();
-          setIsPlaying(false);
-          setProgress(0);
-          setCurrentTime(0);
-        }
-      };
-      
-      requestAnimationFrame(updateProgress);
-      return;
-    }
-    
+
     // Create a new source from the audio file
     console.log('Fetching audio file:', audioUrl);
     fetch(audioUrl)
@@ -176,12 +141,19 @@ export const AudioProvider = ({ children }) => {
         
         // Track progress
         const startTime = audioContextRef.current.currentTime;
+        let lastUpdateTime = 0;
         
         const updateProgress = () => {
-          const elapsed = audioContextRef.current.currentTime - startTime;
+          const currentTime = audioContextRef.current.currentTime;
+          const elapsed = currentTime - startTime;
           const progressValue = Math.min((elapsed / audioBuffer.duration) * 100, 100);
-          setProgress(progressValue);
-          setCurrentTime(elapsed);
+          
+          // Only update if enough time has passed (16ms = ~60fps)
+          if (currentTime - lastUpdateTime >= 0.016) {
+            setProgress(progressValue);
+            setCurrentTime(elapsed);
+            lastUpdateTime = currentTime;
+          }
           
           if (progressValue < 100 && isPlaying) {
             requestAnimationFrame(updateProgress);

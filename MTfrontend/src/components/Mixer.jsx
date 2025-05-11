@@ -15,6 +15,7 @@ const Mixer = ({ submissions }) => {
 
     const handleBackingVolumeChange = (e) => {
         setBackingVolume(parseFloat(e.target.value));
+        console.log(backingVolume);
     }
 
     const handleMasterVolumeChange = (e) => {

@@ -4,23 +4,27 @@ import { useAudio } from '../contexts/AudioContext';
 const Mixer = ({ submissions }) => {
     const { 
         isPlaying, 
-        masterVolume, 
+        submissionVolume, 
         backingVolume, 
         togglePlay, 
-        setMasterVolume, 
+        setSubmissionVolume, 
         setBackingVolume,
         nextTrack,
         previousTrack,
-        masterAudioRef,
+        submissionAudioRef,
         backingAudioRef
     } = useAudio();
 
     const handleBackingVolumeChange = (e) => {
-        setBackingVolume(parseFloat(e.target.value));
+        const newVolume = parseFloat(e.target.value);
+        console.log('Setting backing volume to:', newVolume);
+        setBackingVolume(newVolume);
     }
 
-    const handleMasterVolumeChange = (e) => {
-        setMasterVolume(parseFloat(e.target.value));
+    const handleSubmissionVolumeChange = (e) => {
+        const newVolume = parseFloat(e.target.value);
+        console.log('Setting submission volume to:', newVolume);
+        setSubmissionVolume(newVolume);
     }
 
     const handlePrevTrack = () => {
@@ -34,7 +38,7 @@ const Mixer = ({ submissions }) => {
     return (
         <section className='mixer-section col-span-2 row-span-3' id='mixer'>
             <audio ref={backingAudioRef} className='hidden-audio' id="backing-player"></audio>
-            <audio ref={masterAudioRef} className='hidden-audio' id="master-player"></audio>
+            <audio ref={submissionAudioRef} className='hidden-audio' id="submission-player"></audio>
 
             <div className="transport">
                 <button id="back-btn" onClick={handlePrevTrack}>
@@ -79,20 +83,20 @@ const Mixer = ({ submissions }) => {
                 />
             </div>
 
-            {/* MASTER CHANNEL */}
+            {/* SUBMISSION CHANNEL */}
             <div className='channel'>
                 {/* Volume level indicator */}
                 <div className="volume-indicator"></div>
                 
-                <span className="channel-label">Master</span>
+                <span className="channel-label">Submission</span>
                 <input 
                     type="range"
                     className="vertical-slider"
-                    id="master-volume" 
+                    id="submission-volume" 
                     min="0" 
                     max="1"
-                    onChange={handleMasterVolumeChange}
-                    value={masterVolume} 
+                    onChange={handleSubmissionVolumeChange}
+                    value={submissionVolume} 
                     step="0.01"
                 />
             </div>

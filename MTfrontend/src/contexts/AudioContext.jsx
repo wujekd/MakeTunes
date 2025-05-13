@@ -8,7 +8,7 @@ export const AudioProvider = ({ children }) => {
   const audioContextRef = useRef(null);
   
   // Audio element references
-  const masterAudioRef = useRef(null);
+  const submissionAudioRef = useRef(null);
   const backingAudioRef = useRef(null);
   
   // state
@@ -18,13 +18,13 @@ export const AudioProvider = ({ children }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  const [masterGainNode, setMasterGainNode] = useState(null);
+  const [submissionGainNode, setSubmissionGainNode] = useState(null);
   const [backingGainNode, setBackingGainNode] = useState(null);
 
-  const [masterSource, setMasterSource] = useState(null);
+  const [submissionSource, setSubmissionSource] = useState(null);
   const [backingSource, setBackingSource] = useState(null);
 
-  const [masterVolume, setMasterVolume] = useState(1);
+  const [submissionVolume, setSubmissionVolume] = useState(1);
   const [backingVolume, setBackingVolume] = useState(1);
 
   const [error, setError] = useState(null);
@@ -37,18 +37,18 @@ export const AudioProvider = ({ children }) => {
       audioContextRef.current = new AudioCtx();
       
       // Create gain nodes
-      const masterGain = audioContextRef.current.createGain();
+      const submissionGain = audioContextRef.current.createGain();
       const backingGain = audioContextRef.current.createGain();
       
       // Set gain values
-      masterGain.gain.value = masterVolume;
+      submissionGain.gain.value = submissionVolume;
       backingGain.gain.value = backingVolume;
       
       // Connect gain nodes to destination
-      masterGain.connect(audioContextRef.current.destination);
+      submissionGain.connect(audioContextRef.current.destination);
       backingGain.connect(audioContextRef.current.destination);
       
-      setMasterGainNode(masterGain);
+      setSubmissionGainNode(submissionGain);
       setBackingGainNode(backingGain);
       
       console.log('Audio context initialized:', audioContextRef.current);
@@ -68,14 +68,14 @@ export const AudioProvider = ({ children }) => {
   // Initialize audio sources when audio elements are available
   useEffect(() => {
     const initializeSources = () => {
-      if (!audioContextRef.current || !masterAudioRef.current || !backingAudioRef.current) return;
-      if (masterSource || backingSource) return;
+      if (!audioContextRef.current || !submissionAudioRef.current || !backingAudioRef.current) return;
+      if (submissionSource || backingSource) return;
 
       try {
-        // Create master source
-        const masterSrc = audioContextRef.current.createMediaElementSource(masterAudioRef.current);
-        masterSrc.connect(masterGainNode);
-        setMasterSource(masterSrc);
+        // Create submission source
+        const submissionSrc = audioContextRef.current.createMediaElementSource(submissionAudioRef.current);
+        submissionSrc.connect(submissionGainNode);
+        setSubmissionSource(submissionSrc);
 
         // Create backing source
         const backingSrc = audioContextRef.current.createMediaElementSource(backingAudioRef.current);
@@ -88,17 +88,17 @@ export const AudioProvider = ({ children }) => {
     };
 
     // Wait for both gain nodes to be available
-    if (masterGainNode && backingGainNode) {
+    if (submissionGainNode && backingGainNode) {
       initializeSources();
     }
-  }, [masterGainNode, backingGainNode]);
+  }, [submissionGainNode, backingGainNode]);
   
   // Update volume levels when they change
   useEffect(() => {
-    if (masterGainNode) {
-      masterGainNode.gain.value = masterVolume;
+    if (submissionGainNode) {
+      submissionGainNode.gain.value = submissionVolume;
     }
-  }, [masterVolume, masterGainNode]);
+  }, [submissionVolume, submissionGainNode]);
   
   useEffect(() => {
     if (backingGainNode) {
@@ -110,7 +110,7 @@ export const AudioProvider = ({ children }) => {
   const playTrack = (trackId, audioUrl) => {
     console.log(`Attempting to play track ${trackId} from URL: ${audioUrl}`);
     
-    if (!audioContextRef.current || !masterAudioRef.current) {
+    if (!audioContextRef.current || !submissionAudioRef.current) {
       console.error('Audio context or element not initialized');
       return;
     }
@@ -127,14 +127,14 @@ export const AudioProvider = ({ children }) => {
     }
     
     // Set the audio source
-    masterAudioRef.current.src = audioUrl;
+    submissionAudioRef.current.src = audioUrl;
     setCurrentTrackId(trackId);
     
     // Start playback
-    masterAudioRef.current.play()
+    submissionAudioRef.current.play()
       .then(() => {
         setIsPlaying(true);
-        setDuration(masterAudioRef.current.duration);
+        setDuration(submissionAudioRef.current.duration);
       })
       .catch(err => {
         console.error('Error playing audio:', err);
@@ -143,12 +143,12 @@ export const AudioProvider = ({ children }) => {
   };
   
   const togglePlay = () => {
-    if (!masterAudioRef.current) return;
+    if (!submissionAudioRef.current) return;
     
     if (isPlaying) {
-      masterAudioRef.current.pause();
+      submissionAudioRef.current.pause();
     } else {
-      masterAudioRef.current.play();
+      submissionAudioRef.current.play();
     }
     
     setIsPlaying(!isPlaying);
@@ -156,29 +156,28 @@ export const AudioProvider = ({ children }) => {
   
   // Track progress
   useEffect(() => {
-    if (!masterAudioRef.current) return;
+    if (!submissionAudioRef.current) return;
     
     const updateProgress = () => {
-      if (masterAudioRef.current) {
-        const current = masterAudioRef.current.currentTime;
-        const total = masterAudioRef.current.duration;
+      if (submissionAudioRef.current) {
+        const current = submissionAudioRef.current.currentTime;
+        const total = submissionAudioRef.current.duration;
         setCurrentTime(current);
         setProgress((current / total) * 100);
       }
     };
     
-    masterAudioRef.current.addEventListener('timeupdate', updateProgress);
+    const audioElement = submissionAudioRef.current;
+    audioElement.addEventListener('timeupdate', updateProgress);
     
     return () => {
-      if (masterAudioRef.current) {
-        masterAudioRef.current.removeEventListener('timeupdate', updateProgress);
-      }
+      audioElement.removeEventListener('timeupdate', updateProgress);
     };
-  }, []);
+  }, [submissionAudioRef.current]);
   
   // Handle track ending
   useEffect(() => {
-    if (!masterAudioRef.current) return;
+    if (!submissionAudioRef.current) return;
     
     const handleEnded = () => {
       setIsPlaying(false);
@@ -186,14 +185,13 @@ export const AudioProvider = ({ children }) => {
       setCurrentTime(0);
     };
     
-    masterAudioRef.current.addEventListener('ended', handleEnded);
+    const audioElement = submissionAudioRef.current;
+    audioElement.addEventListener('ended', handleEnded);
     
     return () => {
-      if (masterAudioRef.current) {
-        masterAudioRef.current.removeEventListener('ended', handleEnded);
-      }
+      audioElement.removeEventListener('ended', handleEnded);
     };
-  }, []);
+  }, [submissionAudioRef.current]);
   
   // next track
   const nextTrack = (submissionsList) => {
@@ -224,12 +222,12 @@ export const AudioProvider = ({ children }) => {
     progress,
     currentTime,
     duration,
-    masterVolume,
+    submissionVolume,
     backingVolume,
     error,
     
     // Refs
-    masterAudioRef,
+    submissionAudioRef,
     backingAudioRef,
     
     // Methods
@@ -237,7 +235,7 @@ export const AudioProvider = ({ children }) => {
     togglePlay,
     nextTrack,
     previousTrack,
-    setMasterVolume,
+    setSubmissionVolume,
     setBackingVolume
   };
   

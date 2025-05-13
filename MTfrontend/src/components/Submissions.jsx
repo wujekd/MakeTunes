@@ -1,7 +1,7 @@
 import React from 'react';
 import SubmissionItem from './SubmissionItem';
 
-const Submissions = ({ onAddToFavorites, mockSubmissions }) => {
+const Submissions = ({ onAddToFavorites, mockSubmissions, onMarkAsListened }) => {
   
 
   return (
@@ -14,6 +14,7 @@ const Submissions = ({ onAddToFavorites, mockSubmissions }) => {
             key={submission.id}
             submission={submission}
             onAddToFavorites={onAddToFavorites}
+            onMarkAsListened={onMarkAsListened}
           />
         ))}
       </div>

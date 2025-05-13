@@ -1,7 +1,13 @@
 import React, { useRef, useEffect } from 'react';
 import SubmissionItem from './SubmissionItem';
 
-const Favorites = ({ favorites, onRemoveFromFavorites }) => {
+const Favorites = ({ 
+  favorites, 
+  onRemoveFromFavorites, 
+  onVote, 
+  votedFor, 
+  isSubmittingVote 
+}) => {
   // Reference to the favorites container
   const scrollContainerRef = useRef(null);
 
@@ -85,7 +91,12 @@ const Favorites = ({ favorites, onRemoveFromFavorites }) => {
   return (
     <section className="favorites-section col-span-5 row-span-1">
       <style>{scrollbarStyle}</style>
-      <h2 className="favorites-title">Favorites</h2>
+      <div className="favorites-header">
+        <h2 className="favorites-title">Favorites</h2>
+        {!votedFor && favorites.length > 0 && (
+          <span className="vote-warning">Please select your final vote!</span>
+        )}
+      </div>
       
       <div 
         className="favorites-container" 
@@ -104,6 +115,10 @@ const Favorites = ({ favorites, onRemoveFromFavorites }) => {
               <SubmissionItem 
                 submission={favorite} 
                 onAddToFavorites={null}
+                onVote={onVote}
+                isVotedFor={votedFor === favorite.id}
+                isSubmittingVote={isSubmittingVote}
+                isInFavorites={true}
               />
             </div>
           ))

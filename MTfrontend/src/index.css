@@ -90,6 +90,19 @@ html, body {
   opacity: 0.7;
 }
 
+.favorites-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.vote-warning {
+  color: var(--contrast-600);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
 /* Submission item */
 .submission-container {
   position: relative;
@@ -109,6 +122,16 @@ html, body {
 .submission-container:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.submission-container.voted-for {
+  border: 2px solid var(--contrast-600);
+  box-shadow: 0 0 10px var(--contrast-700);
+}
+
+.submission-container.submitting {
+  opacity: 0.7;
+  pointer-events: none;
 }
 
 .play-button {
@@ -142,6 +165,48 @@ html, body {
   color: var(--white);
   font-size: 1.5rem;
   z-index: 2;
+}
+
+.vote-button {
+  background-color: var(--contrast-600);
+  color: var(--white);
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.vote-button:hover:not(:disabled) {
+  background-color: var(--contrast-700);
+}
+
+.vote-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.remove-button {
+  background-color: var(--primary1-700);
+  color: var(--white);
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.remove-button:hover:not(:disabled) {
+  background-color: var(--primary1-600);
+}
+
+.remove-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .favorite-button {

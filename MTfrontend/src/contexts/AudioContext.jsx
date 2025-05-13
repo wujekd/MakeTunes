@@ -227,17 +227,25 @@ export const AudioProvider = ({ children }) => {
       setIsPlaying(false);
       setProgress(0);
       setCurrentTime(0);
-      // Reset backing track position
+      // Stop both tracks
+      submissionAudioRef.current.pause();
+      backingAudioRef.current.pause();
+      // Reset both track positions
+      submissionAudioRef.current.currentTime = 0;
       backingAudioRef.current.currentTime = 0;
     };
     
-    const audioElement = submissionAudioRef.current;
-    audioElement.addEventListener('ended', handleEnded);
+    const submissionElement = submissionAudioRef.current;
+    const backingElement = backingAudioRef.current;
+    
+    submissionElement.addEventListener('ended', handleEnded);
+    backingElement.addEventListener('ended', handleEnded);
     
     return () => {
-      audioElement.removeEventListener('ended', handleEnded);
+      submissionElement.removeEventListener('ended', handleEnded);
+      backingElement.removeEventListener('ended', handleEnded);
     };
-  }, [submissionAudioRef.current]);
+  }, [submissionAudioRef.current, backingAudioRef.current]);
   
   // next track
   const nextTrack = (submissionsList) => {

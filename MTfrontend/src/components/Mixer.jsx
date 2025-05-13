@@ -10,12 +10,13 @@ const Mixer = ({ submissions }) => {
         setMasterVolume, 
         setBackingVolume,
         nextTrack,
-        previousTrack
+        previousTrack,
+        masterAudioRef,
+        backingAudioRef
     } = useAudio();
 
     const handleBackingVolumeChange = (e) => {
         setBackingVolume(parseFloat(e.target.value));
-        console.log(backingVolume);
     }
 
     const handleMasterVolumeChange = (e) => {
@@ -32,8 +33,8 @@ const Mixer = ({ submissions }) => {
 
     return (
         <section className='mixer-section col-span-2 row-span-3' id='mixer'>
-            <audio src="#" className='hidden-audio' id="backing-player"></audio>
-            <audio src="" className='hidden-audio' id="master-player"></audio>
+            <audio ref={backingAudioRef} className='hidden-audio' id="backing-player"></audio>
+            <audio ref={masterAudioRef} className='hidden-audio' id="master-player"></audio>
 
             <div className="transport">
                 <button id="back-btn" onClick={handlePrevTrack}>

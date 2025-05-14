@@ -1,4 +1,5 @@
 import React from 'react';
+import './InfoTop.css';
 import Display from './Display';
 
 const InfoTop = () => {

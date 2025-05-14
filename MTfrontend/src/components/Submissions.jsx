@@ -1,5 +1,6 @@
 import React from 'react';
 import SubmissionItem from './SubmissionItem';
+import './Submissions.css';
 
 const Submissions = ({ onAddToFavorites, mockSubmissions, onMarkAsListened }) => {
   

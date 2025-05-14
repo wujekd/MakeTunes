@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import './Mixer.css';
 import { useAudio } from '../contexts/AudioContext';
 
 const Mixer = ({ submissions }) => {

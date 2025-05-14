@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import SubmissionItem from './SubmissionItem';
+import './Favorites.css';
 
 const Favorites = ({ 
   favorites, 

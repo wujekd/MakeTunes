@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useAudio } from '../contexts/AudioContext';
+import './SubmissionItem.css';
 
 const SubmissionItem = ({ 
   submission, 

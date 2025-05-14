@@ -1,0 +1,9 @@
+/* Info section */
+.info-section {
+  background-color: var(--primary1-500);
+  color: var(--white);
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+} 

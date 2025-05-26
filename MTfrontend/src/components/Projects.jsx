@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Projects.css';
 
 const Projects = () => {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -26,6 +28,10 @@ const Projects = () => {
         fetchProjects();
     }, []);
 
+    const handleProjectClick = (projectId) => {
+        navigate(`/projects/${projectId}`);
+    };
+
     if (loading) return <div className="projects-loading">Loading projects...</div>;
     if (error) return <div className="projects-error">Error: {error}</div>;
 
@@ -37,14 +43,26 @@ const Projects = () => {
                     <div className="projects-empty">No projects found</div>
                 ) : (
                     projects.map(project => (
-                        <div key={project.id} className="project-card">
+                        <div 
+                            key={project.id} 
+                            className="project-card"
+                            onClick={() => handleProjectClick(project.id)}
+                            role="button"
+                            tabIndex={0}
+                            onKeyPress={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    handleProjectClick(project.id);
+                                }
+                            }}
+                        >
                             <h3 className="project-name">{project.name}</h3>
                             <p className="project-description">{project.description}</p>
                             {project.audioFilePath && (
                                 <audio 
                                     controls 
                                     className="project-audio"
-                                    src={`http://localhost:5000${project.audioFilePath}`}
+                                    src={`http://localhost:5242${project.audioFilePath}`}
+                                    onClick={(e) => e.stopPropagation()} // Prevent card click when clicking audio controls
                                 >
                                     Your browser does not support the audio element.
                                 </audio>

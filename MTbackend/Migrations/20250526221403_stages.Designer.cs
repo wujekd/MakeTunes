@@ -3,6 +3,7 @@ using System;
 using MTbackend;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MTbackend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250526221403_stages")]
+    partial class stages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,34 +42,34 @@ namespace MTbackend.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("ProjectId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ProjectId1")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Stage")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("ProjectId1");
 
-                    b.ToTable("Collabs");
+                    b.ToTable("Collab");
                 });
 
             modelBuilder.Entity("MTbackend.Models.Project", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
 
                     b.Property<string>("AudioFilePath")
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("longtext");
-
-                    b.Property<bool>("IsInVotingStage")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -77,29 +80,11 @@ namespace MTbackend.Migrations
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("MTbackend.Models.Submission", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("AudioFilePath")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Submissions");
-                });
-
             modelBuilder.Entity("MTbackend.Models.Collab", b =>
                 {
                     b.HasOne("MTbackend.Models.Project", "Project")
                         .WithMany("Collabs")
-                        .HasForeignKey("ProjectId")
+                        .HasForeignKey("ProjectId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

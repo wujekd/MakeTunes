@@ -27,7 +27,7 @@ public class ProjectsController : ControllerBase
     public async Task<IActionResult> AddProject(Project project)
     {
         _dbContext.Projects.Add(project);
-        
         return Ok();
     }
+    
 }

@@ -5,6 +5,8 @@ import Submissions from './components/Submissions'
 import InfoTop from './components/InfoTop'
 import { AudioProvider, useAudio } from './contexts/AudioContext'
 import { mockApi } from './services/mockApi'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import Projects from './components/Projects'
 
 // Create a wrapper component to handle audio initialization
 const AudioInitializer = ({ children, backingTrackUrl }) => {
@@ -98,26 +100,33 @@ function App() {
   };
 
   return (
-    <AudioProvider>
-      <AudioInitializer backingTrackUrl={mockBacking[0]}>
-        <main className='grid grid-cols-7 grid-rows-5 h-screen w-screen'>
-          <InfoTop />
-          <Favorites 
-            favorites={favorites} 
-            onRemoveFromFavorites={handleRemoveFromFavorites}
-            onVote={handleVote}
-            votedFor={votedFor}
-            isSubmittingVote={isSubmittingVote}
-          />
-          <Mixer submissions={[...mockSubmissions, ...favorites]} />
-          <Submissions 
-            onAddToFavorites={handleAddToFavorites} 
-            mockSubmissions={mockSubmissions}
-            onMarkAsListened={handleMarkAsListened}
-          />
-        </main>
-      </AudioInitializer>
-    </AudioProvider>
+    <Router>
+      <Routes>
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/" element={
+          <AudioProvider>
+            <AudioInitializer backingTrackUrl={mockBacking[0]}>
+              <main className='grid grid-cols-7 grid-rows-5 h-screen w-screen'>
+                <InfoTop />
+                <Favorites 
+                  favorites={favorites} 
+                  onRemoveFromFavorites={handleRemoveFromFavorites}
+                  onVote={handleVote}
+                  votedFor={votedFor}
+                  isSubmittingVote={isSubmittingVote}
+                />
+                <Mixer submissions={[...mockSubmissions, ...favorites]} />
+                <Submissions 
+                  onAddToFavorites={handleAddToFavorites} 
+                  mockSubmissions={mockSubmissions}
+                  onMarkAsListened={handleMarkAsListened}
+                />
+              </main>
+            </AudioInitializer>
+          </AudioProvider>
+        } />
+      </Routes>
+    </Router>
   )
 }
 

@@ -100,6 +100,70 @@ public class ProjectsController : ControllerBase
 
         return Ok(collab);
     }
+
+    [HttpGet("collabs/{collabId}/submissions")]
+    public async Task<ActionResult<IEnumerable<Submission>>> GetSubmissions(int collabId)
+    {
+        var collab = await _context.Collabs.FindAsync(collabId);
+        if (collab == null)
+        {
+            return NotFound("Collab not found");
+        }
+
+        var submissions = await _context.Submissions
+            .Where(s => s.CollabId == collabId)
+            .ToListAsync();
+
+        return Ok(submissions);
+    }
+
+    [HttpPost("collabs/{collabId}/submissions")]
+    public async Task<ActionResult<Submission>> AddSubmission(int collabId, IFormFile audioFile)
+    {
+        var collab = await _context.Collabs.FindAsync(collabId);
+        if (collab == null)
+        {
+            return NotFound("Collab not found");
+        }
+
+        if (audioFile == null)
+        {
+            return BadRequest("Audio file is required");
+        }
+
+        var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
+        if (!Directory.Exists(uploadsFolder))
+        {
+            Directory.CreateDirectory(uploadsFolder);
+        }
+
+        var uniqueFileName = $"{Guid.NewGuid()}_{audioFile.FileName}";
+        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await audioFile.CopyToAsync(stream);
+        }
+
+        var submission = new Submission
+        {
+            Id = await GetNextSubmissionId(),
+            AudioFilePath = $"/uploads/{uniqueFileName}",
+            CollabId = collabId,
+            Collab = collab
+        };
+
+        _context.Submissions.Add(submission);
+        await _context.SaveChangesAsync();
+
+        return Ok(submission);
+    }
+
+    private async Task<int> GetNextSubmissionId()
+    {
+        var lastSubmission = await _context.Submissions.OrderByDescending(s => s.Id).FirstOrDefaultAsync();
+        return (lastSubmission?.Id ?? 0) + 1;
+    }
 }
 
 public class ProjectDto

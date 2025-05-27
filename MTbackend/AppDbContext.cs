@@ -17,10 +17,16 @@ namespace MTbackend
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Collab>()
-                .HasOne(c => c.Project)
-                .WithMany(p => p.Collabs)
+            modelBuilder.Entity<Project>()
+                .HasMany(p => p.Collabs)
+                .WithOne(c => c.Project)
                 .HasForeignKey(c => c.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Collab>()
+                .HasMany(c => c.Submissions)
+                .WithOne(s => s.Collab)
+                .HasForeignKey(s => s.CollabId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

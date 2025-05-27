@@ -9,4 +9,5 @@ public class Collab
     public required string ProjectId { get; set; }
     public required Project Project { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public ICollection<Submission> Submissions { get; set; } = new List<Submission>();
 } 

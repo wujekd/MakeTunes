@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MTbackend.Models;
 using MTbackend.Services;
+using MTbackend.Models.DTOs;
 
 namespace MTbackend.Controllers;
 
@@ -118,7 +119,7 @@ public class ProjectsController : ControllerBase
     }
 
     [HttpPost("collabs/{collabId}/submissions")]
-    public async Task<ActionResult<Submission>> AddSubmission(int collabId, IFormFile audioFile)
+    public async Task<ActionResult<Submission>> AddSubmission(int collabId, IFormFile audioFile, float volumeOffset = 1.0f)
     {
         var collab = await _context.Collabs.FindAsync(collabId);
         if (collab == null)
@@ -150,7 +151,8 @@ public class ProjectsController : ControllerBase
             Id = await GetNextSubmissionId(),
             AudioFilePath = $"/uploads/{uniqueFileName}",
             CollabId = collabId,
-            Collab = collab
+            Collab = collab,
+            VolumeOffset = volumeOffset
         };
 
         _context.Submissions.Add(submission);
@@ -163,64 +165,6 @@ public class ProjectsController : ControllerBase
     {
         var lastSubmission = await _context.Submissions.OrderByDescending(s => s.Id).FirstOrDefaultAsync();
         return (lastSubmission?.Id ?? 0) + 1;
-    }
-}
-
-[ApiController]
-[Route("api/[controller]")]
-public class SubmissionsController : ControllerBase
-{
-    private readonly AppDbContext _context;
-    private readonly ILogger<SubmissionsController> _logger;
-
-    public SubmissionsController(AppDbContext context, ILogger<SubmissionsController> logger)
-    {
-        _context = context;
-        _logger = logger;
-    }
-
-    // GET: api/submissions/collab/{collabId}
-    [HttpGet("collab/{collabId}")]
-    public async Task<ActionResult<IEnumerable<Submission>>> GetSubmissionsForCollab(int collabId)
-    {
-        _logger.LogInformation($"Getting submissions for collab {collabId}");
-        var submissions = await _context.Submissions
-            .Where(s => s.CollabId == collabId)
-            .ToListAsync();
-
-        return Ok(submissions);
-    }
-
-    // POST: api/submissions
-    [HttpPost]
-    public async Task<ActionResult<Submission>> CreateSubmission([FromForm] int collabId, [FromForm] float volumeOffset = 1.0f)
-    {
-        _logger.LogInformation($"Received submission request for collab {collabId} with volume offset {volumeOffset}");
-
-        // Check if collab exists
-        var collab = await _context.Collabs.FindAsync(collabId);
-        if (collab == null)
-        {
-            _logger.LogWarning($"Collaboration {collabId} not found");
-            return NotFound("Collaboration not found");
-        }
-
-        // Create submission record
-        var submission = new Submission
-        {
-            CollabId = collabId,
-            AudioFilePath = "/uploads/test.mp3", // Temporary test path
-            CreatedAt = DateTime.UtcNow,
-            VolumeOffset = volumeOffset,
-            Id = 0,
-            Collab = null
-        };
-
-        _context.Submissions.Add(submission);
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation($"Successfully created submission {submission.Id} for collab {collabId}");
-        return CreatedAtAction(nameof(GetSubmissionsForCollab), new { collabId = collabId }, submission);
     }
 }
 

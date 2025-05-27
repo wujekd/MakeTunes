@@ -44,19 +44,18 @@ const Upload = ({ project, onCollabAdded }) => {
         setIsSubmitting(true);
 
         const formData = new FormData();
-        formData.append('file', audioFile);
+        formData.append('audioFile', audioFile);
         formData.append('collabId', mostRecentCollab.id);
         formData.append('volumeOffset', submissionVolume);
 
         try {
-            const response = await fetch(`http://localhost:5242/api/submissions`, {
+            const response = await fetch(`http://localhost:5242/api/Projects/collabs/${mostRecentCollab.id}/submissions`, {
                 method: 'POST',
-                body: formData,
+                body: formData
             });
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => null);
-                throw new Error(errorData?.message || 'Failed to submit audio');
+                throw new Error('Failed to submit audio');
             }
 
             const newSubmission = await response.json();
@@ -72,7 +71,7 @@ const Upload = ({ project, onCollabAdded }) => {
             alert('Submission successful!');
         } catch (error) {
             console.error('Error submitting audio:', error);
-            alert(error.message || 'Failed to submit audio. Please try again.');
+            alert('Failed to submit audio. Please try again.');
         } finally {
             setIsSubmitting(false);
         }

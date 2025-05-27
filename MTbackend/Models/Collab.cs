@@ -1,5 +1,11 @@
 namespace MTbackend.Models;
 
+public enum CollabStage
+{
+    Submission,
+    Voting
+}
+
 public class Collab
 {
     public required int Id { get; set; }
@@ -9,5 +15,6 @@ public class Collab
     public required string ProjectId { get; set; }
     public required Project Project { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public CollabStage Stage { get; set; } = CollabStage.Submission;
     public ICollection<Submission> Submissions { get; set; } = new List<Submission>();
 } 

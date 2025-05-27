@@ -5,8 +5,7 @@ import { useAudio } from '../contexts/AudioContext';
 const Upload = ({ project, onCollabAdded }) => {
     const [audioFile, setAudioFile] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submissionCount, setSubmissionCount] = useState(0);
-    const { setBackingTrack } = useAudio();
+    const { setBackingTrack, playTrack, submissionVolume } = useAudio();
 
     // Get the most recent collab
     const mostRecentCollab = project?.collabs?.length > 0 
@@ -14,28 +13,20 @@ const Upload = ({ project, onCollabAdded }) => {
         : null;
 
     useEffect(() => {
-        if (mostRecentCollab) {
-            // Set the backing track in the mixer
-            if (mostRecentCollab.audioFilePath) {
-                setBackingTrack(`http://localhost:5242${mostRecentCollab.audioFilePath}`);
-            }
-            
-            // Get submission count
-            const fetchSubmissionCount = async () => {
-                try {
-                    const response = await fetch(`http://localhost:5242/api/projects/collabs/${mostRecentCollab.id}/submissions`);
-                    if (response.ok) {
-                        const submissions = await response.json();
-                        setSubmissionCount(submissions.length);
-                    }
-                } catch (error) {
-                    console.error('Error fetching submissions:', error);
-                }
-            };
-            
-            fetchSubmissionCount();
+        if (mostRecentCollab?.audioFilePath) {
+            setBackingTrack(`http://localhost:5242${mostRecentCollab.audioFilePath}`);
         }
     }, [mostRecentCollab, setBackingTrack]);
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setAudioFile(file);
+            // Create a URL for the selected file and play it
+            const audioUrl = URL.createObjectURL(file);
+            playTrack('preview', audioUrl);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -53,10 +44,12 @@ const Upload = ({ project, onCollabAdded }) => {
         setIsSubmitting(true);
 
         const formData = new FormData();
-        formData.append('audioFile', audioFile);
+        formData.append('file', audioFile);
+        formData.append('collabId', mostRecentCollab.id);
+        formData.append('volumeOffset', submissionVolume);
 
         try {
-            const response = await fetch(`http://localhost:5242/api/projects/collabs/${mostRecentCollab.id}/submissions`, {
+            const response = await fetch(`http://localhost:5242/api/submissions`, {
                 method: 'POST',
                 body: formData,
             });
@@ -70,9 +63,6 @@ const Upload = ({ project, onCollabAdded }) => {
             
             // Reset form
             setAudioFile(null);
-            
-            // Update submission count
-            setSubmissionCount(prev => prev + 1);
             
             // Notify parent component to refresh project data
             if (onCollabAdded) {
@@ -96,7 +86,6 @@ const Upload = ({ project, onCollabAdded }) => {
                     <h3 className="text-lg font-semibold">Current Collab Details:</h3>
                     <p><strong>Name:</strong> {mostRecentCollab.name}</p>
                     <p><strong>Description:</strong> {mostRecentCollab.description}</p>
-                    <p><strong>Submissions:</strong> {submissionCount}</p>
                 </div>
             )}
             <div className="upload-container">
@@ -107,11 +96,16 @@ const Upload = ({ project, onCollabAdded }) => {
                             type="file"
                             id="audioFile"
                             accept="audio/*"
-                            onChange={(e) => setAudioFile(e.target.files[0])}
+                            onChange={handleFileChange}
                             className="mt-1 block w-full"
                             required
                         />
                     </div>
+                    {audioFile && (
+                        <div className="text-sm text-gray-600">
+                            Current Volume Offset: {submissionVolume.toFixed(2)}
+                        </div>
+                    )}
                     <button
                         type="submit"
                         className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:bg-blue-300"

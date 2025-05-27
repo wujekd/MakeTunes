@@ -95,7 +95,7 @@ const Mixer = ({ submissions }) => {
                     className="vertical-slider"
                     id="submission-volume" 
                     min="0" 
-                    max="1"
+                    max="2"
                     onChange={handleSubmissionVolumeChange}
                     value={submissionVolume} 
                     step="0.01"

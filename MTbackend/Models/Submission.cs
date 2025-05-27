@@ -10,7 +10,6 @@ public class Submission
     public required Collab Collab { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public SubmissionStatus Status { get; set; } = SubmissionStatus.Pending;
-    public float VolumeOffset { get; set; } = 1.0f; // Default to 1.0 (no offset)
 }
 
 public enum SubmissionStatus

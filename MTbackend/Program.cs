@@ -8,6 +8,18 @@ using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
 // Add services to the container.
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -56,17 +68,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Add CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", builder =>
-    {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
-    });
-});
-
 // Database context setup with MySQL
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(
@@ -88,14 +89,26 @@ if (app.Environment.IsDevelopment())
 }
 
 // Use CORS before other middleware
-app.UseCors("AllowAll");
+app.UseCors();
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 // Enable static files serving from wwwroot
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    ServeUnknownFileTypes = true,
+    DefaultContentType = "application/octet-stream",
+    OnPrepareResponse = ctx =>
+    {
+        // Set content type for audio files
+        if (ctx.File.PhysicalPath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase))
+        {
+            ctx.Context.Response.ContentType = "audio/mpeg";
+        }
+    }
+});
 
 app.MapControllers();
 

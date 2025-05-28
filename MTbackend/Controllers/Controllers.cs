@@ -113,6 +113,14 @@ public class ProjectsController : ControllerBase
 
         var submissions = await _context.Submissions
             .Where(s => s.CollabId == collabId)
+            .Select(s => new {
+                s.Id,
+                s.AudioFilePath,
+                s.CollabId,
+                s.CreatedAt,
+                s.Status,
+                s.VolumeOffset
+            })
             .ToListAsync();
 
         return Ok(submissions);

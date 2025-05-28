@@ -89,16 +89,8 @@ export const AudioProvider = ({ children }) => {
     // Only set if the URL has changed
     if (backingAudioRef.current.src !== backingUrl) {
       console.log('Setting backing track:', backingUrl);
-      // Create a new Audio element to handle CORS
-      const audio = new Audio();
-      audio.crossOrigin = "anonymous";
-      audio.src = backingUrl;
-      
-      // Wait for the audio to be loaded before setting it as the source
-      audio.addEventListener('canplaythrough', () => {
-        backingAudioRef.current.src = backingUrl;
-        backingAudioRef.current.crossOrigin = "anonymous";
-      });
+      backingAudioRef.current.crossOrigin = "anonymous";
+      backingAudioRef.current.src = backingUrl;
     }
   };
 
@@ -112,6 +104,10 @@ export const AudioProvider = ({ children }) => {
       if (submissionSource || backingSource) return;
 
       try {
+        // Set CORS attributes
+        submissionAudioRef.current.crossOrigin = "anonymous";
+        backingAudioRef.current.crossOrigin = "anonymous";
+
         // Create submission source
         const submissionSrc = audioContextRef.current.createMediaElementSource(submissionAudioRef.current);
         submissionSrc.connect(submissionGainNode);

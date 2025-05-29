@@ -113,24 +113,23 @@ const VotingView = () => {
     
     setIsSubmittingVote(true);
     try {
-      const votingCollab = project.collabs[project.collabs.length - 1];
-      const response = await fetch(`http://localhost:5242/api/projects/collabs/${votingCollab.id}/submissions/${submission.id}/vote`, {
-        method: 'POST'
-      });
+      // Simulate API call with a 1-second delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      if (response.ok) {
-        setVotedFor(submission.id);
-        setFavorites(prev => [
-          submission,
-          ...prev.filter(fav => fav.id !== submission.id)
-        ]);
-      }
+      // Simulate successful vote
+      setVotedFor(submission.id);
+      setFavorites(prev => [
+        submission,
+        ...prev.filter(fav => fav.id !== submission.id)
+      ]);
+      
+      console.log('Vote submitted for submission:', submission.id);
     } catch (error) {
       console.error('Error submitting vote:', error);
     } finally {
       setIsSubmittingVote(false);
     }
-  }, [isSubmittingVote, project]);
+  }, [isSubmittingVote]);
 
   const handleMarkAsListened = useCallback((submissionId) => {
     setSubmissions(prev => 

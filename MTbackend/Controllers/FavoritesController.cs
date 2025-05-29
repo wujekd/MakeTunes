@@ -7,6 +7,7 @@ namespace MTbackend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Produces("application/json")]
 public class FavoritesController : ControllerBase
 {
     private readonly AppDbContext _context;
@@ -16,8 +17,16 @@ public class FavoritesController : ControllerBase
         _context = context;
     }
 
+    /// <summary>
+    /// Adds a submission to favorites
+    /// </summary>
+    /// <param name="dto">The favorite creation data</param>
+    /// <returns>The created favorite</returns>
     [HttpPost]
-    public async Task<ActionResult<FavoriteResponseDto>> AddFavorite(CreateFavoriteDto dto)
+    [ProducesResponseType(typeof(FavoriteResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<FavoriteResponseDto>> AddFavorite([FromBody] CreateFavoriteDto dto)
     {
         // Check if submission exists
         var submission = await _context.Submissions.FindAsync(dto.SubmissionId);
@@ -62,7 +71,14 @@ public class FavoritesController : ControllerBase
         });
     }
 
+    /// <summary>
+    /// Marks a favorite as the final choice
+    /// </summary>
+    /// <param name="id">The favorite ID</param>
+    /// <returns>The updated favorite</returns>
     [HttpPut("{id}/final-choice")]
+    [ProducesResponseType(typeof(FavoriteResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<FavoriteResponseDto>> MarkAsFinalChoice(int id)
     {
         var favorite = await _context.Favorites.FindAsync(id);
@@ -91,5 +107,29 @@ public class FavoritesController : ControllerBase
             IsFinalChoice = favorite.IsFinalChoice,
             CreatedAt = favorite.CreatedAt
         });
+    }
+
+    /// <summary>
+    /// Gets all favorites for a collaboration
+    /// </summary>
+    /// <param name="collabId">The collaboration ID</param>
+    /// <returns>List of favorites</returns>
+    [HttpGet("collab/{collabId}")]
+    [ProducesResponseType(typeof(IEnumerable<FavoriteResponseDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<FavoriteResponseDto>>> GetFavoritesByCollab(int collabId)
+    {
+        var favorites = await _context.Favorites
+            .Where(f => f.CollabId == collabId)
+            .Select(f => new FavoriteResponseDto
+            {
+                Id = f.Id,
+                SubmissionId = f.SubmissionId,
+                CollabId = f.CollabId,
+                IsFinalChoice = f.IsFinalChoice,
+                CreatedAt = f.CreatedAt
+            })
+            .ToListAsync();
+
+        return Ok(favorites);
     }
 }

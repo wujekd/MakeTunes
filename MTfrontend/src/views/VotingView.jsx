@@ -4,7 +4,6 @@ import { AudioProvider, useAudio } from '../contexts/AudioContext';
 import InfoTop from '../components/InfoTop';
 import Favorites from '../components/Favorites';
 import Mixer from '../components/Mixer'
-import Upload from '../components/Upload';
 import SubmissionView from './SubmissionView';
 import Submissions from '../components/Submissions';
 
@@ -62,6 +61,7 @@ const VotingView = () => {
                 const processedSubmissions = submissionsData.map(sub => ({
                   ...sub,
                   listened: false,
+                  markingListened: false,
                   audioUrl: sub.audioFilePath ? `/uploads/${sub.audioFilePath.split('/').pop()}` : null
                 }));
                 console.log('Processed submissions with audio URLs:', processedSubmissions);
@@ -87,7 +87,7 @@ const VotingView = () => {
     };
   }, [projectId, navigate]);
 
-  const handleAddToFavorites = useCallback((submission) => {
+  const handleAddToFavorites = useCallback ((submission) => {
     if (!favorites.find(fav => fav.id === submission.id)) {
       console.log('Adding to favorites:', submission);
       setFavorites(prev => [...prev, submission]);
@@ -131,19 +131,52 @@ const VotingView = () => {
     }
   }, [isSubmittingVote]);
 
-  const handleMarkAsListened = useCallback((submissionId) => {
-    setSubmissions(prev => 
-      prev.map(sub => 
-        sub.id === submissionId 
-          ? { ...sub, listened: true }
+
+// MARK AS LISTENED
+const handleMarkAsListened = useCallback(async (submissionId) => {
+  // Mark as in progress
+  setSubmissions(prev =>
+    prev.map(sub =>
+      sub.id === submissionId
+        ? { ...sub, markingListened: true }
+        : sub
+    )
+  );
+
+  try {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+ 
+// slap that api call here
+  
+    // On success: mark as listened and clear loading state
+    setSubmissions(prev =>
+      prev.map(sub =>
+        sub.id === submissionId
+          ? { ...sub, listened: true, markingListened: false }
           : sub
       )
     );
-  }, []);
+  } catch (err) {
+    console.error("Failed to mark as listened:", err);
+
+    // reset state if failed
+    setSubmissions(prev =>
+      prev.map(sub =>
+        sub.id === submissionId
+          ? { ...sub, markingListened: false }
+          : sub
+      )
+    );
+  }
+}, []);
+
+
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!project) return null;
+
 
   if (project.isInVotingStage) {
     const votingCollab = project.collabs[project.collabs.length - 1];

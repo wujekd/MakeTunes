@@ -24,6 +24,12 @@
   box-shadow: 0 0 10px var(--contrast-700);
 }
 
+.submission-container.marking {
+  border-color: #facc15;
+  box-shadow: 0 0 10px #facc15;
+  animation: pulse 2s infinite;
+}
+
 .submission-container.submitting {
   opacity: 0.7;
   pointer-events: none;

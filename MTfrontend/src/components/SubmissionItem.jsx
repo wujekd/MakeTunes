@@ -48,7 +48,12 @@ const SubmissionItem = ({
   };
 
   return (
-    <div className={`submission-container ${isVotedFor ? 'voted-for' : ''} ${isSubmittingVote ? 'submitting' : ''}`}>
+    <div className={`
+      submission-container
+      ${isVotedFor ? 'voted-for' : ''}
+      ${submission.markingListened ? 'marking' : ''}
+      ${submission.listened ? 'listened' : ''}
+    `}>
       <button 
         className="play-button" 
         onClick={handlePlayClick}

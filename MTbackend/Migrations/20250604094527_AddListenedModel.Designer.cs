@@ -3,6 +3,7 @@ using System;
 using MTbackend;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MTbackend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250604094527_AddListenedModel")]
+    partial class AddListenedModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,22 +82,6 @@ namespace MTbackend.Migrations
                         .IsUnique();
 
                     b.ToTable("Favorites");
-                });
-
-            modelBuilder.Entity("MTbackend.Models.Listened", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("SubmissionId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SubmissionId");
-
-                    b.ToTable("ListenedMarkings");
                 });
 
             modelBuilder.Entity("MTbackend.Models.Project", b =>
@@ -179,17 +166,6 @@ namespace MTbackend.Migrations
                         .IsRequired();
 
                     b.Navigation("Collab");
-
-                    b.Navigation("Submission");
-                });
-
-            modelBuilder.Entity("MTbackend.Models.Listened", b =>
-                {
-                    b.HasOne("MTbackend.Models.Submission", "Submission")
-                        .WithMany()
-                        .HasForeignKey("SubmissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("Submission");
                 });

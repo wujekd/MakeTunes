@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<Collab> Collabs { get; set; }
     public DbSet<Submission> Submissions { get; set; }
     public DbSet<Favorite> Favorites { get; set; }
+    public DbSet<Listened> ListenedMarkings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

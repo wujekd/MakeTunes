@@ -105,11 +105,25 @@ public class ProjectsController : ControllerBase
     [HttpGet("collabs/{collabId}/submissions")]
     public async Task<ActionResult<IEnumerable<Submission>>> GetSubmissions(int collabId)
     {
-        var collab = await _context.Collabs.FindAsync(collabId);
+        var collab = await _context.Collabs
+            .Include(c => c.Project)
+            .FirstOrDefaultAsync(c => c.Id == collabId);
+            
         if (collab == null)
         {
             return NotFound("Collab not found");
         }
+
+        if (collab.Project == null)
+        {
+            return BadRequest("Collab has no associated project");
+        }
+
+        // Get all listened submissions for this project
+        var listenedSubmissions = await _context.ListenedMarkings
+            .Where(l => l.Project.Id == collab.Project.Id)
+            .Select(l => l.Submission.Id)
+            .ToListAsync();
 
         var submissions = await _context.Submissions
             .Where(s => s.CollabId == collabId)
@@ -119,7 +133,8 @@ public class ProjectsController : ControllerBase
                 s.CollabId,
                 s.CreatedAt,
                 s.Status,
-                s.VolumeOffset
+                s.VolumeOffset,
+                IsListened = listenedSubmissions.Contains(s.Id)
             })
             .ToListAsync();
 

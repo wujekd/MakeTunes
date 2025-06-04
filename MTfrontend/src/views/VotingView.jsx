@@ -6,6 +6,7 @@ import Favorites from '../components/Favorites';
 import Mixer from '../components/Mixer'
 import SubmissionView from './SubmissionView';
 import Submissions from '../components/Submissions';
+import { api } from '../services/api';
 
 const AudioInitializer = ({ children, backingTrackUrl }) => {
   const { setBackingTrack } = useAudio();
@@ -60,7 +61,6 @@ const VotingView = () => {
                 console.log('Raw submissions data:', submissionsData);
                 const processedSubmissions = submissionsData.map(sub => ({
                   ...sub,
-                  listened: false,
                   markingListened: false,
                   audioUrl: sub.audioFilePath ? `/uploads/${sub.audioFilePath.split('/').pop()}` : null
                 }));
@@ -144,10 +144,7 @@ const handleMarkAsListened = useCallback(async (submissionId) => {
   );
 
   try {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
- 
-// slap that api call here
+    await api.markSubmissionAsListened(submissionId);
   
     // On success: mark as listened and clear loading state
     setSubmissions(prev =>

@@ -134,7 +134,7 @@ public class ProjectsController : ControllerBase
                 s.CreatedAt,
                 s.Status,
                 s.VolumeOffset,
-                IsListened = listenedSubmissions.Contains(s.Id)
+                listened = listenedSubmissions.Contains(s.Id)
             })
             .ToListAsync();
 

@@ -125,6 +125,12 @@ public class ProjectsController : ControllerBase
             .Select(l => l.Submission.Id)
             .ToListAsync();
 
+        // Get all favorited submissions for this collab
+        var favoritedSubmissions = await _context.Favorites
+            .Where(f => f.CollabId == collabId)
+            .Select(f => f.SubmissionId)
+            .ToListAsync();
+
         var submissions = await _context.Submissions
             .Where(s => s.CollabId == collabId)
             .Select(s => new {
@@ -134,7 +140,8 @@ public class ProjectsController : ControllerBase
                 s.CreatedAt,
                 s.Status,
                 s.VolumeOffset,
-                listened = listenedSubmissions.Contains(s.Id)
+                listened = listenedSubmissions.Contains(s.Id),
+                favorited = favoritedSubmissions.Contains(s.Id)
             })
             .ToListAsync();
 

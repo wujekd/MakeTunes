@@ -22,7 +22,7 @@ public class VotingControllers : ControllerBase
     /// </summary>
     /// <param name="dto">The favorite creation data</param>
     /// <returns>The created favorite</returns>
-    [HttpPost]
+    [HttpPost("add-favorite")]
     [ProducesResponseType(typeof(FavoriteResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -70,6 +70,40 @@ public class VotingControllers : ControllerBase
             CreatedAt = favorite.CreatedAt
         });
     }
+    
+    
+    /// <summary>
+    /// Removes a submission from favorites
+    /// </summary>
+    /// <param name="dto">The favorite removal data</param>
+    /// <returns>No content or error</returns>
+    [HttpDelete("remove-favorite")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> RemoveFavorite([FromBody] CreateFavoriteDto dto)
+    {
+        if (dto.SubmissionId <= 0 || dto.CollabId <= 0)
+        {
+            return BadRequest("Invalid submission or collab ID.");
+        }
+
+        var favorite = await _context.Favorites
+            .FirstOrDefaultAsync(f => f.SubmissionId == dto.SubmissionId && f.CollabId == dto.CollabId);
+
+        if (favorite == null)
+        {
+            return NotFound("Favorite not found for the given submission and collab.");
+        }
+
+        _context.Favorites.Remove(favorite);
+        await _context.SaveChangesAsync();
+
+        return Ok(); // 204 response
+    }
+
+    
+    
 
     /// <summary>
     /// Marks a favorite as the final choice

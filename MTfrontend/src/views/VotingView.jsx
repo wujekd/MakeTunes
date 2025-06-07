@@ -103,29 +103,59 @@ const VotingView = () => {
 
 
 // ADD TO FAVORITES
-  const handleAddToFavorites = useCallback ((submission) => {
-    if (!favorites.find(fav => fav.id === submission.id)) {
-      console.log('Adding to favorites:', submission);
+  const handleAddToFavorites = useCallback (async (submission) => {
+
+    try {
+      const result = await api.addFavorite(submission.id, submission.collabId);
+      console.log('result: ', result);
+
       setFavorites(prev => [...prev, submission]);
       setSubmissions(prev => prev.filter(sub => sub.id !== submission.id));
+
+      console.log('favorites: ', favorites);
+      console.log('submissions: ', submissions);
+      
+    } catch (error) {
+      console.error('Error adding to favorites:', error);
     }
+
   }, [favorites]);
 
 
-// REMOVE FROM FAVORITES
-  const handleRemoveFromFavorites = useCallback((submission) => {
-    if (favorites.find(fav => fav.id === submission.id)) {
+  //REMOVE FROM FAVORITES
+  const handleRemoveFromFavorites = useCallback(async (submission) => {
+    try {
+      // Check first if it’s currently in favorites
+      if (!favorites.find(fav => fav.id === submission.id)) return;
+  
       console.log('Removing from favorites:', submission);
-      setFavorites(prev => prev.filter(sub => sub.id !== submission.id));
-      if (!submissions.find(sub => sub.id === submission.id)) {
-        setSubmissions(prev => [...prev, submission]);
+  
+      const response = await api.removeFavorite(submission.id, submission.collabId);
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      if (votedFor === submission.id) {
+  
+      // Update frontend state only after successful API response
+      setFavorites(prev => prev.filter(sub => sub.id !== submission.id));
+  
+      setSubmissions(prev => {
+        if (!prev.find(sub => sub.id === submission.id)) {
+          return [...prev, submission];
+        }
+        return prev;
+      });
+  
+      if (votedFor?.id === submission.id) {
         setVotedFor(null);
       }
+  
+    } catch (error) {
+      console.error('Error removing from favorites:', error);
+      // Optional: show user feedback here
     }
   }, [favorites, submissions, votedFor]);
-
+  
 
 // SELECT VOTE
   const handleVote = useCallback(async (submission) => {
@@ -151,6 +181,8 @@ const VotingView = () => {
   }, [isSubmittingVote]);
 
 
+
+  
 
 // MARK AS LISTENED
 const handleMarkAsListened = useCallback(async (submissionId) => {

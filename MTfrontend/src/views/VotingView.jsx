@@ -65,7 +65,12 @@ const VotingView = () => {
                   audioUrl: sub.audioFilePath ? `/uploads/${sub.audioFilePath.split('/').pop()}` : null
                 }));
                 console.log('Processed submissions with audio URLs:', processedSubmissions);
-                setSubmissions(processedSubmissions);
+
+                //processedSubmissions.filter(sub => !favorites.some(fav => fav.id === sub.id))   ??? 
+
+                setSubmissions(processedSubmissions.filter(sub => sub.favorited == false))
+                setFavorites(processedSubmissions.filter(sub => sub.favorited == true))
+                
               }
             }
           }
@@ -87,6 +92,8 @@ const VotingView = () => {
     };
   }, [projectId, navigate]);
 
+
+// ADD TO FAVORITES
   const handleAddToFavorites = useCallback ((submission) => {
     if (!favorites.find(fav => fav.id === submission.id)) {
       console.log('Adding to favorites:', submission);
@@ -95,6 +102,8 @@ const VotingView = () => {
     }
   }, [favorites]);
 
+
+// REMOVE FROM FAVORITES
   const handleRemoveFromFavorites = useCallback((submission) => {
     if (favorites.find(fav => fav.id === submission.id)) {
       console.log('Removing from favorites:', submission);
@@ -108,15 +117,16 @@ const VotingView = () => {
     }
   }, [favorites, submissions, votedFor]);
 
+
+// SELECT VOTE
   const handleVote = useCallback(async (submission) => {
     if (isSubmittingVote) return;
     
     setIsSubmittingVote(true);
     try {
-      // Simulate API call with a 1-second delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Simulate successful vote
+      await api.markFinalChoice(submission.id);
+
       setVotedFor(submission.id);
       setFavorites(prev => [
         submission,
@@ -132,6 +142,7 @@ const VotingView = () => {
   }, [isSubmittingVote]);
 
 
+
 // MARK AS LISTENED
 const handleMarkAsListened = useCallback(async (submissionId) => {
   // Mark as in progress
@@ -142,7 +153,6 @@ const handleMarkAsListened = useCallback(async (submissionId) => {
         : sub
     )
   );
-
   try {
     await api.markSubmissionAsListened(submissionId);
   

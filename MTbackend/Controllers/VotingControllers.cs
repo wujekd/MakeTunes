@@ -74,14 +74,13 @@ public class VotingControllers : ControllerBase
     /// <summary>
     /// Marks a favorite as the final choice
     /// </summary>
-    /// <param name="id">The favorite ID</param>
     /// <returns>The updated favorite</returns>
-    [HttpPut("{id}/final-choice")]
+    [HttpPut("{submissionId}/final-choice")]
     [ProducesResponseType(typeof(FavoriteResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<FavoriteResponseDto>> MarkAsFinalChoice(int id)
+    public async Task<ActionResult<FavoriteResponseDto>> MarkAsFinalChoice(int submissionId)
     {
-        var favorite = await _context.Favorites.FindAsync(id);
+        var favorite = await _context.Favorites.FirstOrDefaultAsync(f => f.SubmissionId == submissionId);
         if (favorite == null)
         {
             return NotFound("Favorite not found");
@@ -90,12 +89,11 @@ public class VotingControllers : ControllerBase
         // Unmark any existing final choice for this collab
         var existingFinalChoice = await _context.Favorites
             .FirstOrDefaultAsync(f => f.CollabId == favorite.CollabId && f.IsFinalChoice);
-        
         if (existingFinalChoice != null)
         {
             existingFinalChoice.IsFinalChoice = false;
         }
-
+        
         favorite.IsFinalChoice = true;
         await _context.SaveChangesAsync();
 

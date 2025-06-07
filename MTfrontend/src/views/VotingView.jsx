@@ -70,6 +70,9 @@ const VotingView = () => {
 
                 setSubmissions(processedSubmissions.filter(sub => sub.favorited == false))
                 setFavorites(processedSubmissions.filter(sub => sub.favorited == true))
+                setVotedFor(processedSubmissions.find(sub => sub.final === true)?.id);
+
+                console.log("test getting final id: ", processedSubmissions.find(sub => sub.final === true)?.id);
                 
               }
             }
@@ -91,6 +94,12 @@ const VotingView = () => {
       isMounted = false;
     };
   }, [projectId, navigate]);
+
+
+  useEffect(() => {
+    console.log('voting for:', votedFor);
+  }, [votedFor]);
+
 
 
 // ADD TO FAVORITES

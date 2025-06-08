@@ -11,7 +11,7 @@ const UserVotings = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await fetch('http://localhost:5242/api/projects');
+                const response = await fetch('http://localhost:5242/api/ProjectControllers');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }

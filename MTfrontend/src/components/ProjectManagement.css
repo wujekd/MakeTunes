@@ -1,0 +1,274 @@
+/* Project Management Layout */
+.project-management {
+    background-color: var(--primary1-600);
+    color: var(--white);
+    padding: 2rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Header */
+.project-management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.project-management-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Buttons */
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background-color: var(--primary1-500);
+    color: var(--white);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--primary1-400);
+}
+
+.btn-success {
+    background-color: #22c55e;
+    color: var(--white);
+}
+
+.btn-success:hover:not(:disabled) {
+    background-color: #16a34a;
+}
+
+.btn-danger {
+    background-color: var(--contrast-600);
+    color: var(--white);
+}
+
+.btn-danger:hover:not(:disabled) {
+    background-color: var(--contrast-700);
+}
+
+.btn-secondary {
+    background-color: var(--gray-500);
+    color: var(--white);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: var(--slate-700);
+}
+
+.btn-small {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+/* Error Message */
+.error-message {
+    background-color: var(--contrast-600);
+    color: var(--white);
+    padding: 1rem;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+/* Form Styling */
+.collab-form {
+    background-color: var(--primary1-800);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.collab-form h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    color: var(--white);
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--bone);
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--primary1-700);
+    border-radius: 0.25rem;
+    background-color: var(--primary1-600);
+    color: var(--white);
+    font-size: 1rem;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary1-400);
+    box-shadow: 0 0 0 2px rgba(63, 141, 141, 0.2);
+}
+
+.form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+/* Collabs List */
+.collabs-list h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    color: var(--white);
+}
+
+.no-collabs {
+    text-align: center;
+    color: var(--bone);
+    padding: 2rem;
+    font-style: italic;
+}
+
+/* Collab Items */
+.collab-item {
+    background-color: var(--primary1-800);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    transition: transform 0.2s ease;
+    border-left: 4px solid transparent;
+}
+
+.collab-item.unreleased {
+    border-left-color: var(--yellow-900);
+}
+
+.collab-item.released {
+    border-left-color: var(--primary1-400);
+}
+
+.collab-item:hover {
+    transform: translateY(-1px);
+}
+
+.collab-info {
+    flex: 1;
+}
+
+.collab-info h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    color: var(--white);
+}
+
+.collab-info p {
+    margin: 0 0 1rem 0;
+    color: var(--bone);
+    line-height: 1.4;
+}
+
+.collab-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.875rem;
+}
+
+.collab-meta span {
+    color: var(--gray-300);
+}
+
+.status {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-weight: 500;
+}
+
+.status.unreleased {
+    background-color: var(--yellow-900);
+    color: var(--white);
+}
+
+.status.released {
+    background-color: var(--primary1-400);
+    color: var(--white);
+}
+
+.completed {
+    background-color: #22c55e;
+    color: var(--white);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-weight: 500;
+}
+
+.collab-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-left: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .project-management {
+        padding: 1rem;
+    }
+    
+    .project-management-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .collab-item {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .collab-actions {
+        flex-direction: row;
+        margin-left: 0;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .collab-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+} 

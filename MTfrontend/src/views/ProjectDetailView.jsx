@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Mixer from '../components/Mixer';
 import InfoTop from '../components/InfoTop';
-import Upload from '../components/Upload';
+import Mixer from '../components/Mixer';
+import ProjectManagement from '../components/ProjectManagement';
 import { AudioProvider } from '../contexts/AudioContext';
 
-const SubmissionView = () => {
+const ProjectDetailView = () => {
     const { projectId } = useParams();
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -33,11 +33,10 @@ const SubmissionView = () => {
         };
 
         fetchProject();
-    }, [projectId]);
+    }, [projectId, navigate]);
 
-    const handleCollabAdded = () => {
+    const handleProjectUpdated = () => {
         setLoading(true);
-        // Trigger a re-fetch by updating a dependency or call the API directly
         const refetchProject = async () => {
             try {
                 const response = await fetch(`http://localhost:5242/api/ProjectControllers/${projectId}`);
@@ -68,11 +67,11 @@ const SubmissionView = () => {
         <AudioProvider>
             <main className='grid grid-cols-7 grid-rows-5 h-screen w-screen'>
                 <InfoTop project={project} collab={latestCollab} />
-                <Upload project={project} onCollabAdded={handleCollabAdded} />
+                <ProjectManagement project={project} onProjectUpdated={handleProjectUpdated} />
                 <Mixer />
             </main>
         </AudioProvider>
     );
 };
 
-export default SubmissionView; 
+export default ProjectDetailView; 

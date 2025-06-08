@@ -11,7 +11,7 @@ const Projects = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await fetch('http://localhost:5242/api/projects');
+                const response = await fetch('http://localhost:5242/api/ProjectControllers');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -66,30 +66,45 @@ const Projects = () => {
                                 <div 
                                     key={project.id} 
                                     className="project-card"
-                                    onClick={() => handleProjectClick(project.id)}
-                                    role="button"
-                                    tabIndex={0}
-                                    onKeyPress={(e) => {
-                                        if (e.key === 'Enter' || e.key === ' ') {
-                                            handleProjectClick(project.id);
-                                        }
-                                    }}
                                 >
-                                    <h3 className="project-name">{project.name}</h3>
-                                    <p className="project-description">{project.description}</p>
-                                    {project.isInVotingStage && (
-                                        <div className="project-status">Voting Stage</div>
-                                    )}
-                                    {project.audioFilePath && (
-                                        <audio 
-                                            controls 
-                                            className="project-audio"
-                                            src={`http://localhost:5242${project.audioFilePath}`}
-                                            onClick={(e) => e.stopPropagation()}
+                                    <div 
+                                        className="project-card-content"
+                                        onClick={() => handleProjectClick(project.id)}
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyPress={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                handleProjectClick(project.id);
+                                            }
+                                        }}
+                                    >
+                                        <h3 className="project-name">{project.name}</h3>
+                                        <p className="project-description">{project.description}</p>
+                                        {project.isInVotingStage && (
+                                            <div className="project-status">Voting Stage</div>
+                                        )}
+                                        {project.audioFilePath && (
+                                            <audio 
+                                                controls 
+                                                className="project-audio"
+                                                src={`http://localhost:5242${project.audioFilePath}`}
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                Your browser does not support the audio element.
+                                            </audio>
+                                        )}
+                                    </div>
+                                    <div className="project-actions">
+                                        <button
+                                            className="btn btn-manage"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                navigate(`/projects/${project.id}/manage`);
+                                            }}
                                         >
-                                            Your browser does not support the audio element.
-                                        </audio>
-                                    )}
+                                            Manage
+                                        </button>
+                                    </div>
                                 </div>
                             ))
                         )}

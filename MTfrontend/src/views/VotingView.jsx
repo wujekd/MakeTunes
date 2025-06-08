@@ -39,7 +39,7 @@ const VotingView = () => {
 
     const fetchProject = async () => {
       try {
-        const response = await fetch(`http://localhost:5242/api/projects/${projectId}`);
+        const response = await fetch(`http://localhost:5242/api/ProjectControllers/${projectId}`);
         if (!response.ok) {
           if (response.status === 404) {
             navigate('/projects');
@@ -55,7 +55,7 @@ const VotingView = () => {
           if (data.isInVotingStage) {
             const votingCollab = data.collabs[data.collabs.length - 1];
             if (votingCollab) {
-              const submissionsResponse = await fetch(`http://localhost:5242/api/projects/collabs/${votingCollab.id}/submissions`);
+              const submissionsResponse = await fetch(`http://localhost:5242/api/ProjectControllers/collabs/${votingCollab.id}/submissions`);
               if (submissionsResponse.ok) {
                 const submissionsData = await submissionsResponse.json();
                 console.log('Raw submissions data:', submissionsData);

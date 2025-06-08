@@ -32,46 +32,71 @@ const Projects = () => {
         navigate(`/projects/${projectId}`);
     };
 
-    if (loading) return <div className="projects-loading">Loading projects...</div>;
-    if (error) return <div className="projects-error">Error: {error}</div>;
+    if (loading) return (
+        <main className="projects-page">
+            <header className="projects-page-header">
+                <h1 className="projects-page-title">Projects</h1>
+            </header>
+            <div className="projects-loading">Loading projects...</div>
+        </main>
+    );
+    
+    if (error) return (
+        <main className="projects-page">
+            <header className="projects-page-header">
+                <h1 className="projects-page-title">Projects</h1>
+            </header>
+            <div className="projects-error">Error: {error}</div>
+        </main>
+    );
 
     return (
-        <section className="projects-section">
-            <h2 className="projects-title">Projects</h2>
-            <div className="projects-grid">
-                {projects.length === 0 ? (
-                    <div className="projects-empty">No projects found</div>
-                ) : (
-                    projects.map(project => (
-                        <div 
-                            key={project.id} 
-                            className="project-card"
-                            onClick={() => handleProjectClick(project.id)}
-                            role="button"
-                            tabIndex={0}
-                            onKeyPress={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    handleProjectClick(project.id);
-                                }
-                            }}
-                        >
-                            <h3 className="project-name">{project.name}</h3>
-                            <p className="project-description">{project.description}</p>
-                            {project.audioFilePath && (
-                                <audio 
-                                    controls 
-                                    className="project-audio"
-                                    src={`http://localhost:5242${project.audioFilePath}`}
-                                    onClick={(e) => e.stopPropagation()} // Prevent card click when clicking audio controls
+        <main className="projects-page">
+            <header className="projects-page-header">
+                <h1 className="projects-page-title">All Projects</h1>
+            </header>
+            
+            <div className="projects-page-content">
+                <section className="projects-section">
+                    <div className="projects-grid">
+                        {projects.length === 0 ? (
+                            <div className="projects-empty">No projects found</div>
+                        ) : (
+                            projects.map(project => (
+                                <div 
+                                    key={project.id} 
+                                    className="project-card"
+                                    onClick={() => handleProjectClick(project.id)}
+                                    role="button"
+                                    tabIndex={0}
+                                    onKeyPress={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            handleProjectClick(project.id);
+                                        }
+                                    }}
                                 >
-                                    Your browser does not support the audio element.
-                                </audio>
-                            )}
-                        </div>
-                    ))
-                )}
+                                    <h3 className="project-name">{project.name}</h3>
+                                    <p className="project-description">{project.description}</p>
+                                    {project.isInVotingStage && (
+                                        <div className="project-status">Voting Stage</div>
+                                    )}
+                                    {project.audioFilePath && (
+                                        <audio 
+                                            controls 
+                                            className="project-audio"
+                                            src={`http://localhost:5242${project.audioFilePath}`}
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                    )}
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </section>
             </div>
-        </section>
+        </main>
     );
 };
 

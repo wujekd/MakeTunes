@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './Mixer.css';
 import { useAudio } from '../contexts/AudioContext';
+import Display from './Display';
 
 const Mixer = ({ submissions }) => {
     const { 
@@ -40,6 +41,8 @@ const Mixer = ({ submissions }) => {
         <section className='mixer-section col-span-2 row-span-3' id='mixer'>
             <audio ref={backingAudioRef} className='hidden-audio' id="backing-player"></audio>
             <audio ref={submissionAudioRef} className='hidden-audio' id="submission-player"></audio>
+
+            <Display />
 
             <div className="transport">
                 <button id="back-btn" onClick={handlePrevTrack}>

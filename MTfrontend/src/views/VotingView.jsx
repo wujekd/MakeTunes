@@ -260,6 +260,7 @@ const handleMarkAsListened = useCallback(async (submissionId) => {
       </AudioProvider>
     );
   }
+  
 
   return <SubmissionView project={project} />;
 };

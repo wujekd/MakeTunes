@@ -44,7 +44,17 @@ public class DevController : ControllerBase
         await _context.SaveChangesAsync();
         return Ok(collab);
     }
+
+    [HttpGet("delete-all-submissions")]
+    public async Task<IActionResult> DeleteAllSubmissions()
+    {
+        _context.Submissions.RemoveRange(_context.Submissions);
+        await _context.SaveChangesAsync();
+        return Ok("All submissions deleted");
+    }
 }
+
+
 
 public class StageSwitchRequest
 {

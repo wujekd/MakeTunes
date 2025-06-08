@@ -1,7 +1,8 @@
 .projects-section {
     padding: 2rem;
-    background-color: var(--primary1-400);
+    background-color: transparent;
     color: var(--white);
+    height: 100%;
 }
 
 .projects-title {
@@ -59,4 +60,15 @@
     padding: 2rem;
     color: var(--contrast-600);
     font-size: 1.1rem;
+}
+
+.project-status {
+    background-color: var(--contrast-600);
+    color: var(--white);
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    display: inline-block;
 } 

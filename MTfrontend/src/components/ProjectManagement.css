@@ -133,6 +133,58 @@
     box-shadow: 0 0 0 2px rgba(63, 141, 141, 0.2);
 }
 
+.form-group input[type="file"] {
+    padding: 0.5rem;
+    background-color: var(--primary1-700);
+    border: 2px dashed var(--primary1-500);
+    cursor: pointer;
+}
+
+.form-group input[type="file"]:hover {
+    border-color: var(--primary1-400);
+    background-color: var(--primary1-600);
+}
+
+.form-group input[type="file"]:focus {
+    border-color: var(--primary1-400);
+    border-style: solid;
+}
+
+.form-hint {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: var(--gray-400);
+    font-style: italic;
+}
+
+.current-file-info {
+    background-color: var(--primary1-600);
+    border: 1px solid var(--primary1-500);
+    border-radius: 0.25rem;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.current-file-label {
+    font-weight: 500;
+    color: var(--bone);
+    font-size: 0.875rem;
+}
+
+.current-file-name {
+    color: var(--white);
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    background-color: var(--primary1-800);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid var(--primary1-700);
+}
+
 .form-group textarea {
     min-height: 80px;
     resize: vertical;

@@ -78,12 +78,33 @@ public class ProjectControllers : ControllerBase
     /// Creates a new collab for a project
     /// </summary>
     [HttpPost("{projectId}/collabs")]
-    public async Task<IActionResult> CreateCollab(string projectId, [FromBody] CreateCollabDto collabDto)
+    public async Task<IActionResult> CreateCollab(string projectId, [FromForm] CreateCollabFormDto collabDto)
     {
         var project = await _context.Projects.FindAsync(projectId);
         if (project == null)
         {
             return NotFound("Project not found");
+        }
+
+        // Handle audio file upload
+        string? audioFilePath = null;
+        if (collabDto.AudioFile != null)
+        {
+            var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var uniqueFileName = $"{Guid.NewGuid()}_{collabDto.AudioFile.FileName}";
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await collabDto.AudioFile.CopyToAsync(stream);
+            }
+
+            audioFilePath = $"/uploads/{uniqueFileName}";
         }
 
         var collab = new Collab
@@ -93,6 +114,7 @@ public class ProjectControllers : ControllerBase
             Description = collabDto.Description,
             ProjectId = projectId,
             Project = project,
+            AudioFilePath = audioFilePath,
             Released = false, // Always start as unreleased
             SubmissionDuration = collabDto.SubmissionDuration != null ? TimeSpan.Parse(collabDto.SubmissionDuration) : null,
             VotingDuration = collabDto.VotingDuration != null ? TimeSpan.Parse(collabDto.VotingDuration) : null,
@@ -107,7 +129,7 @@ public class ProjectControllers : ControllerBase
     }
 
     /// <summary>
-    /// Updates an existing collab (only if not released)
+    /// Updates an existing collab (only if not released) - JSON version (no file)
     /// </summary>
     [HttpPut("collabs/{id}")]
     public async Task<IActionResult> UpdateCollab(int id, [FromBody] UpdateCollabDto collabDto)
@@ -124,6 +146,67 @@ public class ProjectControllers : ControllerBase
         if (collab.Released)
         {
             return BadRequest("Cannot edit a released collab");
+        }
+
+        collab.Name = collabDto.Name;
+        collab.Description = collabDto.Description;
+        collab.SubmissionDuration = collabDto.SubmissionDuration != null ? TimeSpan.Parse(collabDto.SubmissionDuration) : null;
+        collab.VotingDuration = collabDto.VotingDuration != null ? TimeSpan.Parse(collabDto.VotingDuration) : null;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(collab);
+    }
+
+    /// <summary>
+    /// Updates an existing collab with file replacement (only if not released)
+    /// </summary>
+    [HttpPut("collabs/{id}/with-file")]
+    public async Task<IActionResult> UpdateCollabWithFile(int id, [FromForm] UpdateCollabFormDto collabDto)
+    {
+        var collab = await _context.Collabs
+            .Include(c => c.Project)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (collab == null)
+        {
+            return NotFound("Collab not found");
+        }
+
+        if (collab.Released)
+        {
+            return BadRequest("Cannot edit a released collab");
+        }
+
+        // Handle audio file replacement
+        if (collabDto.AudioFile != null)
+        {
+            // Delete old file if it exists
+            if (!string.IsNullOrEmpty(collab.AudioFilePath))
+            {
+                var oldFilePath = Path.Combine(_environment.WebRootPath, collab.AudioFilePath.TrimStart('/'));
+                if (System.IO.File.Exists(oldFilePath))
+                {
+                    System.IO.File.Delete(oldFilePath);
+                }
+            }
+
+            // Save new file
+            var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var uniqueFileName = $"{Guid.NewGuid()}_{collabDto.AudioFile.FileName}";
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await collabDto.AudioFile.CopyToAsync(stream);
+            }
+
+            collab.AudioFilePath = $"/uploads/{uniqueFileName}";
         }
 
         collab.Name = collabDto.Name;
@@ -339,10 +422,28 @@ public class CreateCollabDto
     public string? VotingDuration { get; set; }     // Format: "3:00:00" for 3 days
 }
 
+public class CreateCollabFormDto
+{
+    public required string Name { get; set; }
+    public required string Description { get; set; }
+    public string? SubmissionDuration { get; set; } // Format: "7:00:00" for 7 days
+    public string? VotingDuration { get; set; }     // Format: "3:00:00" for 3 days
+    public IFormFile? AudioFile { get; set; }
+}
+
 public class UpdateCollabDto
 {
     public required string Name { get; set; }
     public required string Description { get; set; }
     public string? SubmissionDuration { get; set; } // Format: "7:00:00" for 7 days
     public string? VotingDuration { get; set; }     // Format: "3:00:00" for 3 days
+}
+
+public class UpdateCollabFormDto
+{
+    public required string Name { get; set; }
+    public required string Description { get; set; }
+    public string? SubmissionDuration { get; set; } // Format: "7:00:00" for 7 days
+    public string? VotingDuration { get; set; }     // Format: "3:00:00" for 3 days
+    public IFormFile? AudioFile { get; set; }
 } 

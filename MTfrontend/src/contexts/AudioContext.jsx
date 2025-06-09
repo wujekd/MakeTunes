@@ -190,12 +190,31 @@ export const AudioProvider = ({ children }) => {
     if (isPlaying) {
       submissionAudioRef.current.pause();
       backingAudioRef.current.pause();
+      setIsPlaying(false);
     } else {
-      submissionAudioRef.current.play();
-      backingAudioRef.current.play();
+      // Resume audio context if it's suspended (important for page refresh)
+      if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+        console.log('Resuming suspended audio context in togglePlay');
+        audioContextRef.current.resume();
+      }
+      
+      // Set playing state immediately to update UI
+      setIsPlaying(true);
+      
+      Promise.all([
+        submissionAudioRef.current.play(),
+        backingAudioRef.current.play()
+      ])
+        .then(() => {
+          console.log('Audio playback started successfully');
+        })
+        .catch(err => {
+          console.error('Error playing audio in togglePlay:', err);
+          setError(err.message);
+          // Reset playing state if play failed
+          setIsPlaying(false);
+        });
     }
-    
-    setIsPlaying(!isPlaying);
   };
   
   // Track progress

@@ -5,6 +5,7 @@ import { useAudio } from '../contexts/AudioContext';
 const Upload = ({ project, onCollabAdded }) => {
     const [audioFile, setAudioFile] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [backingTrackInitialized, setBackingTrackInitialized] = useState(false);
     const { setBackingTrack, playTrack, submissionVolume } = useAudio();
 
     // Get the most recent collab
@@ -13,10 +14,12 @@ const Upload = ({ project, onCollabAdded }) => {
         : null;
 
     useEffect(() => {
-        if (mostRecentCollab?.audioFilePath) {
+        if (mostRecentCollab?.audioFilePath && !backingTrackInitialized) {
+            console.log('Initializing backing track for submission view:', `http://localhost:5242${mostRecentCollab.audioFilePath}`);
             setBackingTrack(`http://localhost:5242${mostRecentCollab.audioFilePath}`);
+            setBackingTrackInitialized(true);
         }
-    }, [mostRecentCollab, setBackingTrack]);
+    }, [mostRecentCollab?.audioFilePath, backingTrackInitialized, setBackingTrack]);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];

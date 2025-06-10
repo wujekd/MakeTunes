@@ -1,8 +1,14 @@
 import React from 'react';
 import './InfoTop.css';
 import Display from './Display';
+import ProjectHistory from './ProjectHistory';
 
-const InfoTop = ({ project, collab }) => {
+const InfoTop = ({ 
+  project, 
+  collab, 
+  selectedCollab, 
+  onSelectCollab 
+}) => {
 
   // if loading
   if (!project) {
@@ -29,6 +35,13 @@ const InfoTop = ({ project, collab }) => {
           <p className="text-gray-500 text-xl">{project.description}</p>
         )}
       </div>
+      
+      <ProjectHistory 
+        project={project}
+        activeCollab={collab}
+        selectedCollab={selectedCollab}
+        onSelectCollab={onSelectCollab}
+      />
     </section>
   );
 };

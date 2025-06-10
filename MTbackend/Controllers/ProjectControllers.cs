@@ -240,6 +240,7 @@ public class ProjectControllers : ControllerBase
         }
 
         collab.Released = true;
+        collab.ReleaseTime = DateTime.UtcNow; // Set the release timestamp
         
         // Set project voting stage if this collab is in voting mode
         if (collab.Stage == CollabStage.Voting)

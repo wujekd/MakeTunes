@@ -79,6 +79,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Add this with other service registrations
 builder.Services.AddScoped<CollabService>();
 
+// Add background service for collab timing
+builder.Services.AddHostedService<CollabTimingService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

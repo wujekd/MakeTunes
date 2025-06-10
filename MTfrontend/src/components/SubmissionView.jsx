@@ -18,4 +18,4 @@ const SubmissionView = ({ project }) => {
     );
 };
 
-export default SubmissionView; 
+export default SubmissionView;

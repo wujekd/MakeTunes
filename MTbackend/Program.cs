@@ -4,6 +4,8 @@ using MTbackend.Services;
 using MTbackend.Swagger;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Identity;
+using MTbackend.Models;
 using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +21,25 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
+
+
+// Simplified password requirements for development
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireDigit = false;
+    options.Password.RequiredLength = 1;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequiredUniqueChars = 0;
+});
+
+// Identity and JWT setup
+builder.Services.AddIdentity<User, IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+
 
 // Add services to the container.
 builder.Services.AddControllers()

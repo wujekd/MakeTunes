@@ -3,13 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Mixer from '../components/Mixer';
 import InfoTop from '../components/InfoTop';
 import Upload from '../components/Upload';
-import { AudioProvider } from '../contexts/AudioContext';
+import InactiveCollabDisplay from '../components/InactiveCollabDisplay';
+import { AudioProvider, useAudio } from '../contexts/AudioContext';
 
 const SubmissionView = () => {
     const { projectId } = useParams();
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedCollab, setSelectedCollab] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -25,6 +27,11 @@ const SubmissionView = () => {
                 }
                 const data = await response.json();
                 setProject(data);
+                
+                // Set the latest collab as selected by default
+                if (data.collabs && data.collabs.length > 0) {
+                    setSelectedCollab(data.collabs[data.collabs.length - 1]);
+                }
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -46,6 +53,11 @@ const SubmissionView = () => {
                 }
                 const data = await response.json();
                 setProject(data);
+                
+                // Update selected collab to the latest one if it was the latest before
+                if (data.collabs && data.collabs.length > 0) {
+                    setSelectedCollab(data.collabs[data.collabs.length - 1]);
+                }
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -55,23 +67,75 @@ const SubmissionView = () => {
         refetchProject();
     };
 
+    const handleSelectCollab = (collab) => {
+        setSelectedCollab(collab);
+    };
+
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
     if (!project) return null;
 
-    // Get the latest collab for the InfoTop component
+    // Get the latest collab for comparison
     const latestCollab = project.collabs && project.collabs.length > 0 
         ? project.collabs[project.collabs.length - 1] 
         : null;
 
+    // Determine if selected collab is the active (latest and not completed) one
+    const isActiveCollabSelected = selectedCollab && latestCollab && 
+        selectedCollab.id === latestCollab.id && !selectedCollab.completed;
+
     return (
         <AudioProvider>
-            <main className='grid grid-cols-7 grid-rows-5 h-screen w-screen'>
-                <InfoTop project={project} collab={latestCollab} />
-                <Upload project={project} onCollabAdded={handleCollabAdded} />
-                <Mixer />
-            </main>
+            <SubmissionViewContent 
+                project={project}
+                latestCollab={latestCollab}
+                selectedCollab={selectedCollab}
+                onSelectCollab={handleSelectCollab}
+                onCollabAdded={handleCollabAdded}
+                isActiveCollabSelected={isActiveCollabSelected}
+            />
         </AudioProvider>
+    );
+};
+
+// Wrapper component to access audio context
+const SubmissionViewContent = ({ 
+    project, 
+    latestCollab, 
+    selectedCollab, 
+    onSelectCollab, 
+    onCollabAdded,
+    isActiveCollabSelected 
+}) => {
+    const { setBackingTrack } = useAudio();
+
+    // Handle backing track loading when switching to active collab
+    useEffect(() => {
+        if (isActiveCollabSelected && selectedCollab && selectedCollab.audioFilePath) {
+            console.log('Loading backing track for active collab:', selectedCollab.name);
+            setBackingTrack(`http://localhost:5242${selectedCollab.audioFilePath}`);
+        }
+    }, [isActiveCollabSelected, selectedCollab, setBackingTrack]);
+
+    return (
+        <main className='grid grid-cols-7 grid-rows-5 h-screen w-screen'>
+            <InfoTop 
+                project={project} 
+                collab={latestCollab}
+                selectedCollab={selectedCollab}
+                onSelectCollab={onSelectCollab}
+            />
+            
+            {isActiveCollabSelected ? (
+                // Show active collab: Upload component for submissions
+                <Upload project={project} onCollabAdded={onCollabAdded} />
+            ) : (
+                // Show inactive collab: Collab information with audio controls
+                <InactiveCollabDisplay selectedCollab={selectedCollab} />
+            )}
+            
+            <Mixer />
+        </main>
     );
 };
 

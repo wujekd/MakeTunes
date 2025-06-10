@@ -1,61 +1,343 @@
 .upload-section {
-    background-color: var(--primary1-400);
-    color: var(--white);
-    display: flex;
-    flex-direction: column;
+    background: var(--primary1-400);
     padding: 1rem;
     overflow-y: auto;
+    position: relative;
 }
 
-.upload-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-}
-
-.upload-container {
+.upload-content {
+    height: 100%;
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    padding: 1rem;
-    background-color: var(--primary1-800);
-    border-radius: 0.5rem;
+    max-width: 100%;
 }
 
-/* Button styles matching app design system */
-.download-btn, .submit-btn {
-    background-color: var(--primary1-900);
+/* Placeholder State */
+.upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    color: var(--white);
+    gap: 0.5rem;
+    opacity: 0.7;
+}
+
+.upload-placeholder h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--white);
+}
+
+.upload-placeholder p {
+    font-size: 0.875rem;
+    margin: 0;
+    opacity: 0.8;
+}
+
+/* Header Section - Matching InactiveCollabDisplay */
+.collab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--primary1-600);
+    border-radius: 8px;
+    border: 1px solid var(--primary1-700);
+}
+
+.collab-title-section {
+    flex: 1;
+    min-width: 0;
+}
+
+.collab-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+    color: var(--white);
+    line-height: 1.2;
+}
+
+.collab-description {
+    font-size: 0.875rem;
+    color: var(--white);
+    margin: 0 0 0.5rem 0;
+    line-height: 1.4;
+    opacity: 0.8;
+}
+
+.collab-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.status-badge.active {
+    background-color: var(--contrast-600);
+    color: var(--white);
+    border: 1px solid var(--contrast-700);
+}
+
+.status-badge.released {
+    background-color: var(--primary1-800);
+    color: var(--white);
+    border: 1px solid var(--primary1-900);
+}
+
+/* Action Cards */
+.action-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.action-card {
+    background: var(--primary1-600);
+    border-radius: 8px;
+    border: 1px solid var(--primary1-700);
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.action-card:hover {
+    transform: translateY(-1px);
+    border-color: var(--contrast-600);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background: var(--primary1-700);
+    border-bottom: 1px solid var(--primary1-800);
+}
+
+.card-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--white);
+}
+
+.card-icon {
+    color: var(--white);
+    opacity: 0.7;
+}
+
+.card-content {
+    padding: 0.75rem;
+}
+
+/* Audio Status - Matching InactiveCollabDisplay */
+.audio-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.audio-status.available {
+    color: var(--white);
+}
+
+.audio-status.unavailable {
+    color: var(--white);
+    opacity: 0.6;
+}
+
+.status-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--contrast-600);
+    flex-shrink: 0;
+}
+
+/* Form Styling */
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.file-input-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.file-label {
+    font-size: 0.75rem;
+    color: var(--white);
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.file-input {
+    width: 100%;
+    padding: 0.5rem;
+    background: var(--primary1-800);
+    border: 1px solid var(--primary1-900);
+    border-radius: 4px;
+    color: var(--white);
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.file-input:focus {
+    outline: none;
+    border-color: var(--contrast-600);
+}
+
+.file-input::file-selector-button {
+    background: var(--contrast-600);
     color: var(--white);
     border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.375rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    margin-right: 0.5rem;
+    cursor: pointer;
+}
+
+.file-input::file-selector-button:hover {
+    background: var(--contrast-700);
+}
+
+.file-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    background: var(--primary1-800);
+    border-radius: 4px;
+    border: 1px solid var(--primary1-900);
+}
+
+.file-name {
+    font-size: 0.75rem;
+    color: var(--white);
     font-weight: 500;
-    font-size: 0.875rem;
+}
+
+.volume-info {
+    font-size: 0.625rem;
+    color: var(--white);
+    opacity: 0.7;
+}
+
+/* Button Styling */
+.download-btn, .submit-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--contrast-600);
+    color: var(--white);
+    border: none;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--contrast-700);
+    justify-content: center;
 }
 
 .download-btn:hover, .submit-btn:hover {
-    background-color: var(--contrast-600);
+    background: var(--contrast-700);
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .download-btn:active, .submit-btn:active {
     transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .submit-btn:disabled {
-    background-color: var(--primary1-600);
+    background: var(--primary1-700);
+    border-color: var(--primary1-800);
     cursor: not-allowed;
     transform: none;
     opacity: 0.6;
 }
 
 .submit-btn:disabled:hover {
-    background-color: var(--primary1-600);
+    background: var(--primary1-700);
     transform: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--primary1-800);
+    border-top: 2px solid var(--white);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .upload-section {
+        padding: 0.75rem;
+    }
+    
+    .collab-header {
+        padding: 0.75rem;
+    }
+    
+    .action-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .collab-title {
+        font-size: 1.25rem;
+    }
+    
+    .download-btn, .submit-btn {
+        padding: 0.625rem 1rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Scrollbar Styling */
+.upload-section::-webkit-scrollbar {
+    width: 4px;
+}
+
+.upload-section::-webkit-scrollbar-track {
+    background: var(--primary1-600);
+    border-radius: 2px;
+}
+
+.upload-section::-webkit-scrollbar-thumb {
+    background: var(--primary1-800);
+    border-radius: 2px;
+}
+
+.upload-section::-webkit-scrollbar-thumb:hover {
+    background: var(--contrast-600);
 } 

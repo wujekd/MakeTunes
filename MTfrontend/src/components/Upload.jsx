@@ -28,6 +28,37 @@ const Upload = ({ project, onCollabAdded }) => {
         }
     };
 
+    const handleDownloadBackingTrack = async () => {
+        if (!mostRecentCollab?.audioFilePath) {
+            alert('No backing track available for download');
+            return;
+        }
+
+        try {
+            // Fetch the file as a blob to force download
+            const backingTrackUrl = `http://localhost:5242${mostRecentCollab.audioFilePath}`;
+            const response = await fetch(backingTrackUrl);
+            const blob = await response.blob();
+            
+            // Create download link with blob
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${mostRecentCollab.name}_backing_track.mp3`;
+            
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Clean up blob URL
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error downloading backing track:', error);
+            alert('Failed to download backing track. Please try again.');
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
@@ -85,6 +116,16 @@ const Upload = ({ project, onCollabAdded }) => {
                     <h3 className="text-lg font-semibold">Current Collab Details:</h3>
                     <p><strong>Name:</strong> {mostRecentCollab.name}</p>
                     <p><strong>Description:</strong> {mostRecentCollab.description}</p>
+                    {mostRecentCollab.audioFilePath && (
+                        <div className="mt-3">
+                            <button
+                                onClick={handleDownloadBackingTrack}
+                                className="download-btn"
+                            >
+                                📥 Download Backing Track
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
             <div className="upload-container">
@@ -107,7 +148,7 @@ const Upload = ({ project, onCollabAdded }) => {
                     )}
                     <button
                         type="submit"
-                        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:bg-blue-300"
+                        className="submit-btn"
                         disabled={isSubmitting}
                     >
                         {isSubmitting ? 'Submitting...' : 'Submit'}

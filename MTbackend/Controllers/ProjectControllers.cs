@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using MTbackend.Models;
 using MTbackend.Services;
 using MTbackend.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace MTbackend.Controllers;
 
@@ -58,11 +60,15 @@ public class ProjectControllers : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AddProject(ProjectDto projectDto)
     {
+        var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        
+        
         var project = new Project
         {
             Id = Guid.NewGuid().ToString(),
             Name = projectDto.Name,
-            Description = projectDto.Description
+            Description = projectDto.Description,
+            UserId = userId,
         };
 
         _context.Projects.Add(project);

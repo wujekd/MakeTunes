@@ -9,6 +9,10 @@ public class Favorite
     public int Id { get; set; }
     
     [Required]
+    public string UserId { get; set; }
+    public User User { get; set; }
+    
+    [Required]
     public int SubmissionId { get; set; }
     
     [ForeignKey("SubmissionId")]

@@ -4,6 +4,10 @@ namespace MTbackend.Models;
 
 public class Submission
 {
+    public string UserId { get; set; }
+    public User User { get; set; }
+    
+    [Key]
     public required int Id { get; set; }
     public required string AudioFilePath { get; set; }
     public required int CollabId { get; set; }

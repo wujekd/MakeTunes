@@ -4,6 +4,8 @@ using System.ComponentModel.DataAnnotations;
 
 public class Project
 {
+    public string UserId { get; set; }
+    public User User { get; set; }
     public required string Id { get; set; } = Guid.NewGuid().ToString();
     public required string Name { get; set; }
     public required string Description { get; set; }

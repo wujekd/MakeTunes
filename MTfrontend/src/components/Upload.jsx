@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import './Upload.css';
 import { useAudio } from '../contexts/AudioContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const Upload = ({ project, onCollabAdded }) => {
     const [audioFile, setAudioFile] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [backingTrackInitialized, setBackingTrackInitialized] = useState(false);
     const { setBackingTrack, playTrack, submissionVolume } = useAudio();
+    const { token } = useAuth();
 
     // Get the most recent collab
     const mostRecentCollab = project?.collabs?.length > 0 
@@ -13,10 +16,16 @@ const Upload = ({ project, onCollabAdded }) => {
         : null;
 
     useEffect(() => {
-        if (mostRecentCollab?.audioFilePath) {
+        if (mostRecentCollab?.audioFilePath && !backingTrackInitialized) {
             setBackingTrack(`http://localhost:5242${mostRecentCollab.audioFilePath}`);
+            setBackingTrackInitialized(true);
         }
-    }, [mostRecentCollab, setBackingTrack]);
+    }, [mostRecentCollab, setBackingTrack, backingTrackInitialized]);
+
+    // Reset initialization flag when collab changes
+    useEffect(() => {
+        setBackingTrackInitialized(false);
+    }, [mostRecentCollab]);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -62,6 +71,11 @@ const Upload = ({ project, onCollabAdded }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
+        if (!token) {
+            alert('Please log in to submit audio');
+            return;
+        }
+
         if (!audioFile) {
             alert('Please select an audio file');
             return;
@@ -69,6 +83,11 @@ const Upload = ({ project, onCollabAdded }) => {
 
         if (!mostRecentCollab) {
             alert('No active collab found');
+            return;
+        }
+
+        if (!mostRecentCollab.released) {
+            alert('This collab has not been released yet. Please wait for it to be released before submitting.');
             return;
         }
 
@@ -80,13 +99,17 @@ const Upload = ({ project, onCollabAdded }) => {
         formData.append('volumeOffset', submissionVolume);
 
         try {
-            const response = await fetch(`http://localhost:5242/api/Projects/collabs/${mostRecentCollab.id}/submissions`, {
+            const response = await fetch(`http://localhost:5242/api/ProjectControllers/collabs/${mostRecentCollab.id}/submissions`, {
                 method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
                 body: formData
             });
 
             if (!response.ok) {
-                throw new Error('Failed to submit audio');
+                const errorData = await response.text();
+                throw new Error(errorData || 'Failed to submit audio');
             }
 
             const newSubmission = await response.json();
@@ -102,7 +125,7 @@ const Upload = ({ project, onCollabAdded }) => {
             alert('Submission successful!');
         } catch (error) {
             console.error('Error submitting audio:', error);
-            alert('Failed to submit audio. Please try again.');
+            alert('Failed to submit audio: ' + error.message);
         } finally {
             setIsSubmitting(false);
         }
@@ -128,10 +151,9 @@ const Upload = ({ project, onCollabAdded }) => {
                         <h2 className="collab-title">{mostRecentCollab.name}</h2>
                         <p className="collab-description">{mostRecentCollab.description}</p>
                         <div className="collab-meta">
-                            <span className="status-badge active">Active Submission</span>
-                            {mostRecentCollab.released && (
-                                <span className="status-badge released">Released</span>
-                            )}
+                            <span className={`status-badge ${mostRecentCollab.released ? 'active' : 'inactive'}`}>
+                                {mostRecentCollab.released ? 'Active Submission' : 'Not Released'}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -204,6 +226,7 @@ const Upload = ({ project, onCollabAdded }) => {
                                         onChange={handleFileChange}
                                         className="file-input"
                                         required
+                                        disabled={!mostRecentCollab.released}
                                     />
                                     {audioFile && (
                                         <div className="file-info">
@@ -217,13 +240,15 @@ const Upload = ({ project, onCollabAdded }) => {
                                 <button
                                     type="submit"
                                     className="submit-btn"
-                                    disabled={isSubmitting}
+                                    disabled={isSubmitting || !mostRecentCollab.released}
                                 >
                                     {isSubmitting ? (
                                         <>
                                             <div className="loading-spinner"></div>
                                             Submitting...
                                         </>
+                                    ) : !mostRecentCollab.released ? (
+                                        'Waiting for Release'
                                     ) : (
                                         <>
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

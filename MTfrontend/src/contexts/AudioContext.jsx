@@ -86,11 +86,12 @@ export const AudioProvider = ({ children }) => {
       return;
     }
 
-    // Only set if the URL has changed
-    if (backingAudioRef.current.src !== backingUrl) {
+    // Only set if the URL has changed and we're not already playing
+    if (backingAudioRef.current.src !== backingUrl && !isPlaying) {
       console.log('Setting backing track:', backingUrl);
       backingAudioRef.current.crossOrigin = "anonymous";
       backingAudioRef.current.src = backingUrl;
+      backingAudioRef.current.load(); // Force reload of the audio
     }
   };
 
@@ -101,22 +102,31 @@ export const AudioProvider = ({ children }) => {
     const initializeSources = () => {
       if (isInitialized) return;
       if (!audioContextRef.current || !submissionAudioRef.current || !backingAudioRef.current) return;
-      if (submissionSource || backingSource) return;
+      
+      // Check if sources are already connected to avoid duplicate connections
+      if (submissionSource && backingSource) {
+        console.log('Audio sources already initialized');
+        return;
+      }
 
       try {
         // Set CORS attributes
         submissionAudioRef.current.crossOrigin = "anonymous";
         backingAudioRef.current.crossOrigin = "anonymous";
 
-        // Create submission source
-        const submissionSrc = audioContextRef.current.createMediaElementSource(submissionAudioRef.current);
-        submissionSrc.connect(submissionGainNode);
-        setSubmissionSource(submissionSrc);
+        // Create submission source only if not already created
+        if (!submissionSource) {
+          const submissionSrc = audioContextRef.current.createMediaElementSource(submissionAudioRef.current);
+          submissionSrc.connect(submissionGainNode);
+          setSubmissionSource(submissionSrc);
+        }
 
-        // Create backing source
-        const backingSrc = audioContextRef.current.createMediaElementSource(backingAudioRef.current);
-        backingSrc.connect(backingGainNode);
-        setBackingSource(backingSrc);
+        // Create backing source only if not already created
+        if (!backingSource) {
+          const backingSrc = audioContextRef.current.createMediaElementSource(backingAudioRef.current);
+          backingSrc.connect(backingGainNode);
+          setBackingSource(backingSrc);
+        }
         
         isInitialized = true;
         console.log('Audio sources initialized');

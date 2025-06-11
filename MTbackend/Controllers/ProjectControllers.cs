@@ -362,6 +362,13 @@ public class ProjectControllers : ControllerBase
     [HttpPost("collabs/{collabId}/submissions")]
     public async Task<IActionResult> AddSubmission(int collabId, IFormFile audioFile, float volumeOffset = 1.0f)
     {
+        var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequest("User not found");
+        }
+
         var collab = await _context.Collabs.FindAsync(collabId);
         if (collab == null)
         {
@@ -398,7 +405,8 @@ public class ProjectControllers : ControllerBase
             AudioFilePath = $"/uploads/{uniqueFileName}",
             CollabId = collabId,
             Collab = collab,
-            VolumeOffset = volumeOffset
+            VolumeOffset = volumeOffset,
+            UserId = userId,
         };
 
         _context.Submissions.Add(submission);

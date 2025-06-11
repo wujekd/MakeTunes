@@ -6,6 +6,7 @@ const InactiveCollabDisplay = ({ selectedCollab }) => {
     const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(false);
     const [audioLoaded, setAudioLoaded] = useState(false);
+    const [backingTrackInitialized, setBackingTrackInitialized] = useState(false);
     const { setBackingTrack, playTrack, isPlaying, togglePlay } = useAudio();
     
     useEffect(() => {
@@ -40,13 +41,15 @@ const InactiveCollabDisplay = ({ selectedCollab }) => {
         
         // Reset audio loaded state
         setAudioLoaded(false);
+        setBackingTrackInitialized(false);
         
         // Load backing track for the new collab
-        if (selectedCollab.audioFilePath) {
+        if (selectedCollab.audioFilePath && !backingTrackInitialized) {
             console.log('Loading backing track for collab:', selectedCollab.name);
             setBackingTrack(`http://localhost:5242${selectedCollab.audioFilePath}`);
+            setBackingTrackInitialized(true);
         }
-    }, [selectedCollab, isPlaying, togglePlay, setBackingTrack]);
+    }, [selectedCollab, isPlaying, togglePlay, setBackingTrack, backingTrackInitialized]);
     
     if (!selectedCollab) {
         return (

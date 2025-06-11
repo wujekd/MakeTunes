@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MTbackend.Models;
@@ -11,10 +13,12 @@ namespace MTbackend.Controllers;
 public class VotingControllers : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly UserManager<User> _userManager;
 
-    public VotingControllers(AppDbContext context)
+    public VotingControllers(AppDbContext context, UserManager<User> userManager)
     {
         _context = context;
+        _userManager = userManager;
     }
 
     /// <summary>
@@ -28,6 +32,13 @@ public class VotingControllers : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<FavoriteResponseDto>> AddFavorite([FromBody] CreateFavoriteDto dto)
     {
+        var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequest("User not found");
+        }
+        
         // Check if submission exists
         var submission = await _context.Submissions.FindAsync(dto.SubmissionId);
         if (submission == null)
@@ -55,7 +66,8 @@ public class VotingControllers : ControllerBase
         {
             SubmissionId = dto.SubmissionId,
             CollabId = dto.CollabId,
-            IsFinalChoice = false
+            IsFinalChoice = false,
+            UserId = userId,
         };
 
         _context.Favorites.Add(favorite);
@@ -175,6 +187,15 @@ public class VotingControllers : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> MarkAsListened(int submissionId)
     {
+        
+        var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequest("User not found");
+        }
+        
+        
         // Check if submission exists and get its project
         var submission = await _context.Submissions
             .Include(s => s.Collab)
@@ -198,7 +219,9 @@ public class VotingControllers : ControllerBase
         var listened = new Listened
         {
             Submission = submission,
-            Project = submission.Collab.Project
+            Project = submission.Collab.Project,
+            UserId = userId
+            
         };
 
         _context.ListenedMarkings.Add(listened);

@@ -108,14 +108,21 @@ const SubmissionViewContent = ({
     isActiveCollabSelected 
 }) => {
     const { setBackingTrack } = useAudio();
+    const [backingTrackInitialized, setBackingTrackInitialized] = useState(false);
 
     // Handle backing track loading when switching to active collab
     useEffect(() => {
-        if (isActiveCollabSelected && selectedCollab && selectedCollab.audioFilePath) {
+        if (isActiveCollabSelected && selectedCollab && selectedCollab.audioFilePath && !backingTrackInitialized) {
             console.log('Loading backing track for active collab:', selectedCollab.name);
             setBackingTrack(`http://localhost:5242${selectedCollab.audioFilePath}`);
+            setBackingTrackInitialized(true);
         }
-    }, [isActiveCollabSelected, selectedCollab, setBackingTrack]);
+    }, [isActiveCollabSelected, selectedCollab, setBackingTrack, backingTrackInitialized]);
+
+    // Reset initialization flag when collab changes
+    useEffect(() => {
+        setBackingTrackInitialized(false);
+    }, [selectedCollab]);
 
     return (
         <main className='grid grid-cols-7 grid-rows-5 h-screen w-screen'>

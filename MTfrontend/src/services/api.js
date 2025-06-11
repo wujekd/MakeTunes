@@ -1,4 +1,3 @@
-
 const API_BASE_URL = 'http://localhost:5242/api';
 
 export const api = {
@@ -9,12 +8,16 @@ export const api = {
   markSubmissionAsListened: async (submissionId) => {
     console.log('Marking submission as listened:', submissionId);
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/VotingControllers/submissions/${submissionId}/mark-listened`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
       });
+
+      console.log('response: ', response);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -30,24 +33,29 @@ export const api = {
 
   // MARK SUBMISSION AS FAVORITE
   //[HttpPost("add-favorite")]
-  addFavorite: async (SubmissionId, CollabId) => {
-    console.log("Adding favorite- submissionId: ", SubmissionId, " collabId: ", CollabId);
+  addFavorite: async (submissionId, collabId) => {
+    console.log("Adding favorite- submissionId: ", submissionId, " collabId: ", collabId);
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/VotingControllers/add-favorite`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ SubmissionId, CollabId }),
+        body: JSON.stringify({ 
+          submissionId: submissionId, 
+          collabId: collabId 
+        }),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(errorText || `HTTP error! status: ${response.status}`);
       }
 
       return await response.json();
-
     } catch (error) {
       console.error('Error adding favorite:', error);
       throw error;
@@ -55,29 +63,34 @@ export const api = {
   },
 
   // UNMARK SUBMISSION AS FAVORITE
-removeFavorite: async (SubmissionId, CollabId) => {
-  console.log("Removing favorite - submissionId:", SubmissionId, "collabId:", CollabId);
+  removeFavorite: async (submissionId, collabId) => {
+    console.log("Removing favorite - submissionId:", submissionId, "collabId:", collabId);
 
-  try {
-    const response = await fetch(`${API_BASE_URL}/VotingControllers/remove-favorite`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ SubmissionId, CollabId }),
-    });
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/VotingControllers/remove-favorite`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          submissionId: submissionId, 
+          collabId: collabId 
+        }),
+      });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `HTTP error! status: ${response.status}`);
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Error removing favorite:', error);
+      throw error;
     }
-
-    return await response;
-
-  } catch (error) {
-    console.error('Error removing favorite:', error);
-    throw error;
-  }
-},
+  },
 
 
 
@@ -88,19 +101,21 @@ removeFavorite: async (SubmissionId, CollabId) => {
     console.log("Marking final choice:", submissionId);
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/VotingControllers/${submissionId}/final-choice`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(errorText || `HTTP error! status: ${response.status}`);
       }
 
       return await response.json();
-
     } catch (error) {
       console.error('Error marking final choice:', error);
       throw error;

@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import HomeView from './views/HomeView';
 import ProjectDetailView from './views/ProjectDetailView';
 import VotingView from './views/VotingView';
+import DebugSubmissionView from './views/DebugSubmissionView';
 import Projects from './components/Projects';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AccountView } from './views/AccountView';
@@ -30,6 +31,12 @@ function AppContent() {
       <Route path="/projects/:projectId/manage" element={
         <ProtectedRoute>
           <ProjectDetailView />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/projects/:projectId/debug" element={
+        <ProtectedRoute>
+          <DebugSubmissionView />
         </ProtectedRoute>
       } />
       

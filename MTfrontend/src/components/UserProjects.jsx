@@ -1,17 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { CreateProjectForm } from './CreateProjectForm';
 import './Projects.css';
 
 const UserProjects = () => {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showCreateModal, setShowCreateModal] = useState(false);
     const navigate = useNavigate();
+    const { token } = useAuth();
 
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await fetch('http://localhost:5242/api/ProjectControllers');
+                const response = await fetch('http://localhost:5242/api/ProjectControllers', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -26,7 +34,7 @@ const UserProjects = () => {
         };
 
         fetchProjects();
-    }, []);
+    }, [token]);
 
     const handleProjectClick = (projectId) => {
         navigate(`/projects/${projectId}`);
@@ -37,7 +45,16 @@ const UserProjects = () => {
 
     return (
         <section className="projects-section">
-            <h2 className="projects-title">Your Projects</h2>
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="projects-title">Your Projects</h2>
+                <button
+                    onClick={() => setShowCreateModal(true)}
+                    className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600"
+                >
+                    Create Project
+                </button>
+            </div>
+            
             <div className="projects-grid">
                 {projects.length === 0 ? (
                     <div className="projects-empty">No projects found</div>
@@ -71,6 +88,10 @@ const UserProjects = () => {
                     ))
                 )}
             </div>
+
+            {showCreateModal && (
+                <CreateProjectForm onClose={() => setShowCreateModal(false)} />
+            )}
         </section>
     );
 };

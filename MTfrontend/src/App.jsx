@@ -1,22 +1,61 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Projects from './components/Projects';
-import VotingView from './views/VotingView';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import HomeView from './views/HomeView';
 import ProjectDetailView from './views/ProjectDetailView';
+import VotingView from './views/VotingView';
+import Projects from './components/Projects';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AccountView } from './views/AccountView';
 
+// Protected Route wrapper component
+const ProtectedRoute = ({ children }) => {
+  const { token } = useAuth();
+  
+  if (!token) {
+    return <Navigate to="/account" />;
+  }
+  
+  return children;
+};
 
-function App() {
+function AppContent() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/projects" element={<Projects />} />
-        <Route path="/projects/:projectId/manage" element={<ProjectDetailView />} />
-        <Route path="/projects/:projectId" element={<VotingView />} />
-        <Route path="/" element={<HomeView />} />
-      </Routes>
-    </Router>
+    <Routes>
+      {/* Public route */}
+      <Route path="/projects" element={<Projects />} />
+      
+      {/* Auth route */}
+      <Route path="/account" element={<AccountView />} />
+      
+      {/* Protected routes */}
+      <Route path="/projects/:projectId/manage" element={
+        <ProtectedRoute>
+          <ProjectDetailView />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/projects/:projectId" element={
+        <ProtectedRoute>
+          <VotingView />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/" element={
+        <ProtectedRoute>
+          <HomeView />
+        </ProtectedRoute>
+      } />
+    </Routes>
   );
 }
 
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
+  );
+}
 
 export default App;

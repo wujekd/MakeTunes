@@ -21,4 +21,12 @@ export class AudioEngine {
         player.pause();
         player.currentTime = 0;
     }
+    loadAndPlay(playerId, src) {
+        this.loadSource(playerId, src);
+        this.play(playerId);
+    }
+    setVolume(playerId, volume) {
+        const player = playerId === 1 ? this.player1 : this.player2;
+        player.volume = volume;
+    }
 }

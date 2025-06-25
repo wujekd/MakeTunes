@@ -1,47 +1,42 @@
-import { audioFiles } from './mock-audio.js';
-import { AudioEngine } from './audio-engine.js';
+import { audioFiles } from './test-audio/mock-audio.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
     const player1List = document.getElementById('player-1-list');
     const player2List = document.getElementById('player-2-list');
 
-    const audioPlayer1 = document.getElementById('audio-player-1') as HTMLAudioElement | null;
-    const audioPlayer2 = document.getElementById('audio-player-2') as HTMLAudioElement | null;
+    const audioPlayer1 = document.getElementById('audio-player-1');
+    const audioPlayer2 = document.getElementById('audio-player-2');
 
-    if (!audioPlayer1 || !audioPlayer2) {
-        console.error('Audio elements not found in the DOM');
-        return;
-    }
 
-    // Instantiate the audio engine with the two players
-    const engine = new AudioEngine(audioPlayer1, audioPlayer2);
-
-    // Populate lists
-    audioFiles.player1Files.forEach(path => {
+    for (let i = 0; i < audioFiles.player1Files.length; i++) {
         const li = document.createElement('li');
-        li.textContent = path;
+        li.textContent = audioFiles.player1Files[i];
+
         li.addEventListener('click', () => {
-            console.log('Selected from player1:', path);
-            engine.loadAndPlay(1, path);
+            logstuff(li.textContent || '');
+            playAudio(li.textContent || '', 1);
         });
         player1List?.appendChild(li);
-    });
-
-    audioFiles.player2Files.forEach(path => {
+    }
+    for (let i = 0; i < audioFiles.player2Files.length; i++) {
         const li = document.createElement('li');
-        li.textContent = path;
+        li.textContent = audioFiles.player2Files[i];
+
         li.addEventListener('click', () => {
-            console.log('Selected from player2:', path);
-            engine.loadAndPlay(2, path);
+            logstuff(li.textContent || '');
+            playAudio(li.textContent || '', 2);
         });
         player2List?.appendChild(li);
-    });
-});
+    }
 
-function logstuff(x: string): void {
+
+
+  });
+
+  function logstuff(x: string): void {
     console.log(x);
-}
+  }
 
-function playAudio(fileSrc: string, playerId: number): void {
-} 
+  function playAudio(fileSrc: string, playerId: number): void {
+  } 

@@ -38,18 +38,13 @@
         
         <!-- Submissions Section with Audio Players -->
         <div class="submissions-section">
-            <h3>Audio Players</h3>
-            
+        
             <!-- First Audio Player -->
             <div class="audio-player-section">
                 <div class="audio-player-title">Audio Player 1</div>
                 <details>
                     <summary>Select Audio File</summary>
-                    <ul>
-                        <li>backing_track.mp3</li>
-                        <li>drum_loop.wav</li>
-                        <li>bass_line.mid</li>
-                        <li>synth_pad.mp3</li>
+                    <ul id="player-1-list">
                     </ul>
                 </details>
             </div>
@@ -59,11 +54,7 @@
                 <div class="audio-player-title">Audio Player 2</div>
                 <details>
                     <summary>Select Audio File</summary>
-                    <ul>
-                        <li>submission_1.mp3</li>
-                        <li>submission_2.wav</li>
-                        <li>demo_track.mid</li>
-                        <li>final_mix.mp3</li>
+                    <ul id="player-2-list">
                     </ul>
                 </details>
             </div>
@@ -75,7 +66,7 @@
                 <source src="" type="audio/mpeg">
                 Your browser does not support the audio element.
             </audio>
-            <button id="testy">testy</button>
+            <button id="test-btn">testy</button>
         </div>
         
         <!-- Mixer Section -->
@@ -133,6 +124,6 @@
         </section>
     </div>
 
-    <script src="audio-engine.js"></script>
+    <script src="main.js" type="module"></script>
 </body>
 </html> 

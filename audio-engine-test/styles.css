@@ -1,0 +1,134 @@
+:root {
+    /* Primary colors */
+    --primary: #1b3031;
+    --primary1-400: #59a8a7;
+    --primary1-500: #3f8d8d;
+    --primary1-600: #307071;
+    --primary1-700: #2a595b;
+    --primary1-800: #25494a;
+    --primary1-900: #1b3031;
+    
+    /* Secondary colors */
+    --secondary: #2d5052;
+    
+    /* Contrast colors */
+    --contrast-600: #d55f21;
+    --contrast-700: #b1481d;
+    
+    /* Background colors */
+    --background: #3f7072;
+    --offblue: #488083;
+    
+    /* Utility colors */
+    --gray-300: #d1d5db;
+    --gray-500: #6b7280;
+    --slate-700: #334155;
+    --red-700: #b91c1c;
+    --yellow-900: #713f12;
+    
+    /* Common colors */
+    --white: #EEEEEE;
+    --bone: #F2EBE3;
+    --accent: #691313;
+    --warning: #8F3739;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+.main-container {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    height: 100vh;
+    width: 100vw;
+}
+
+.info-top {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    background-color: var(--primary1-500);
+    color: var(--white);
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.submissions-section {
+    grid-column: 1 / 6;
+    grid-row: 2 / 6;
+    background-color: var(--primary1-400);
+    color: var(--white);
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.mixer {
+    grid-column: 6 / -1;
+    grid-row: 2 / 6;
+    background-color: var(--primary1-700);
+    color: var(--white);
+    padding: 1rem;
+    display: flex;
+    justify-content: space-around;
+    position: relative;
+    border-radius: 0.25rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.audio-player-section {
+    margin-bottom: 30px;
+}
+
+.audio-player-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--white);
+}
+
+details {
+    border: 1px solid var(--primary1-600);
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: var(--primary1-600);
+}
+
+summary {
+    background-color: var(--primary1-700);
+    color: var(--white);
+    padding: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px 4px 0 0;
+}
+
+summary:hover {
+    background-color: var(--primary1-800);
+}
+
+ul {
+    margin: 0;
+    padding: 10px;
+    background-color: var(--primary1-500);
+    border-radius: 0 0 4px 4px;
+}
+
+li {
+    padding: 8px;
+    border-bottom: 1px solid var(--primary1-600);
+    cursor: pointer;
+    color: var(--white);
+}
+
+li:hover {
+    background-color: var(--primary1-600);
+}
+
+li:last-child {
+    border-bottom: none;
+} 

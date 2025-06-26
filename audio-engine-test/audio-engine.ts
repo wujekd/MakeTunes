@@ -7,7 +7,6 @@ export class AudioEngine {
     this.player2 = player2;
   }
 
-
   loadSource(playerId: 1 | 2, src: string): void {
     const player = playerId === 1 ? this.player1 : this.player2;
     player.src = src;

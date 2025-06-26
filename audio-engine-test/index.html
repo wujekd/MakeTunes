@@ -94,21 +94,7 @@
                 </button>
             </div>
 
-            <!-- BACKING CHANNEL -->
-            <div class="channel">
-                <div class="volume-indicator"></div>
-                <span class="channel-label">Backing</span>
-                <input 
-                    type="range"
-                    class="vertical-slider"
-                    id="backing-volume" 
-                    min="0" 
-                    max="1"
-                    step="0.01"
-                />
-            </div>
-
-            <!-- SUBMISSION CHANNEL -->
+            <!-- SUBMISSION CHANNEL (first) -->
             <div class="channel">
                 <div class="volume-indicator"></div>
                 <span class="channel-label">Submission</span>
@@ -121,9 +107,23 @@
                     step="0.01"
                 />
             </div>
+
+            <!-- MASTER CHANNEL (formerly Backing) -->
+            <div class="channel">
+                <div class="volume-indicator"></div>
+                <span class="channel-label">Master</span>
+                <input 
+                    type="range"
+                    class="vertical-slider"
+                    id="master-volume" 
+                    min="0" 
+                    max="1"
+                    step="0.01"
+                />
+            </div>
         </section>
     </div>
 
-    <script src="audio-engine.js" type="module"></script>
+    <script src="main.js" type="module"></script>
 </body>
 </html> 

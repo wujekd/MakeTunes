@@ -99,13 +99,24 @@ public class VotingControllers : ControllerBase
         {
             return BadRequest("Invalid submission or collab ID.");
         }
+        
+        var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequest("User not found");
+        }
 
         var favorite = await _context.Favorites
             .FirstOrDefaultAsync(f => f.SubmissionId == dto.SubmissionId && f.CollabId == dto.CollabId);
 
         if (favorite == null)
         {
-            return NotFound("Favorite not found for the given submission and collab.");
+            return NotFound("No such thing");
+        }
+
+        if (favorite.UserId != userId)
+        {
+            return Unauthorized("U cant do that mate");
         }
 
         _context.Favorites.Remove(favorite);
@@ -126,10 +137,22 @@ public class VotingControllers : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<FavoriteResponseDto>> MarkAsFinalChoice(int submissionId)
     {
+        
+        var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequest("User not found");
+        }
+        
         var favorite = await _context.Favorites.FirstOrDefaultAsync(f => f.SubmissionId == submissionId);
         if (favorite == null)
         {
             return NotFound("Favorite not found");
+        }
+        
+        if (favorite.UserId != userId)
+        {
+            return Unauthorized();
         }
 
         // Unmark any existing final choice for this collab

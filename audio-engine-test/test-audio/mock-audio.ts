@@ -6,9 +6,11 @@ export const audioFiles = {
         "test-audio/bb_g_Ab.mp3"
     ],
     player2Files: [
+        "test-audio/demo2 instrumental.mp3"
+    ],
+    pastStageFiles: [
         "test-audio/Rudi demo arr1 acc copy.mp3",
         "test-audio/Kuba.mp3",
         "test-audio/tomas demo1 instrumental.mp3",
-        "test-audio/demo2 instrumental.mp3"
     ]
 }; 

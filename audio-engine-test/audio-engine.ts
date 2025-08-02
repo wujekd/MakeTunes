@@ -17,15 +17,16 @@ export class AudioEngine {
     this.player2 = player2;
 
     this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    this.setupAudioRouting();
-    this.connectPlayerToAudioContext(1);
-    this.connectPlayerToAudioContext(2);
     
     this.state = {
       player1: { isPlaying: false, currentTime: 0, duration: 0, volume: 1, source: null, hasEnded: false, error: null },
       player2: { isPlaying: false, currentTime: 0, duration: 0, volume: 1, source: null, hasEnded: false, error: null },
-      master: { volume: 1 }
+      master: { volume: 0 }
     };
+    
+    this.setupAudioRouting();
+    this.connectPlayerToAudioContext(1);
+    this.connectPlayerToAudioContext(2);
     this.setupAudioEventListeners();
   }
 
@@ -39,9 +40,9 @@ export class AudioEngine {
     this.player2Gain.connect(this.masterGain);
     this.masterGain.connect(this.audioContext.destination);
     
-    this.player1Gain.gain.value = 1.0;
-    this.player2Gain.gain.value = 1.0;
-    this.masterGain.gain.value = 1.0;
+    this.player1Gain.gain.value = this.state.player1.volume;
+    this.player2Gain.gain.value = this.state.player2.volume;
+    this.masterGain.gain.value = this.state.master.volume;
   }
   private connectPlayerToAudioContext(playerId: 1 | 2): void {
     const player = playerId === 1 ? this.player1 : this.player2;
@@ -135,35 +136,53 @@ export class AudioEngine {
     }
     
     // Update state to notify React about new source
-    this.updateState({
-      [`player${playerId}`]: { 
-        ...this.state[`player${playerId}`], 
-        source: src,
-        isPlaying: false,  // Reset play state for new source
-        hasEnded: false,
-        currentTime: 0
-      },
-      // Also update player2's currentTime in state if we reset it
-      ...(playerId === 1 && {
-        player2: {
-          ...this.state.player2,
-          currentTime: 0
-        }
-      })
-    });
+    // this.updateState({
+    //   [`player${playerId}`]: { 
+    //     ...this.state[`player${playerId}`], 
+    //     source: src,
+    //     isPlaying: false,  // Reset play state for new source
+    //     hasEnded: false,
+    //     currentTime: 0
+    //   },
+    //   // Also update player2's currentTime in state if we reset it
+    //   ...(playerId === 1 && {
+    //     player2: {
+    //       ...this.state.player2,
+    //       currentTime: 0
+    //     }
+    //   })
+    // });
   }
+  
+  playSubmission(submissionSrc: string, backingSrc): void {
+    this.loadSource(1, submissionSrc);
+    this.loadSource(2, backingSrc);
+    console.log('submissionSrc:', submissionSrc);
+    console.log('backingSrc:', backingSrc);
 
-  play(): void {
-    this.player1.play();
-    this.player2.play();
     this.updateState({
-      player1: { 
+      player1: {
         ...this.state.player1, 
         isPlaying: true 
       },
-      player2: { 
+      player2: {
         ...this.state.player2, 
         isPlaying: true 
+      }
+    });
+    this.player1.play();
+    this.player2.play();
+  } 
+  
+
+  playPastStage(src: string){
+    this.loadSource(2, src);
+    this.player1.pause();
+    this.player2.play();
+    this.updateState({
+      player2: {
+        ...this.state.player2,
+        isPlaying: true
       }
     });
   }
@@ -172,13 +191,13 @@ export class AudioEngine {
     this.player1.pause();
     this.player2.pause();
     this.updateState({
-      player1: { 
-        ...this.state.player1, 
-        isPlaying: false 
+      player1: {
+        ...this.state.player1,
+        isPlaying: false
       },
-      player2: { 
-        ...this.state.player2, 
-        isPlaying: false 
+      player2: {
+        ...this.state.player2,
+        isPlaying: false
       }
     });
   }
@@ -189,11 +208,37 @@ export class AudioEngine {
     player.currentTime = 0;
   }
 
-  loadAndPlay(playerId: 1 | 2, src: string): void {
-    this.loadSource(playerId, src);
-    this.play();
+  toggleP2(): void {
+    const state = this.getState();
+    if (state.player2.isPlaying) {
+      this.player2.pause();
+      this.updateState({
+        player2: { ...this.state.player2, isPlaying: false }
+      });
+    } else {
+      this.player2.play();
+      this.updateState({
+        player2: { ...this.state.player2, isPlaying: true }
+      });
+    }
   }
 
+  toggleBoth(): void {
+    const state = this.getState();
+    const player1Playing = state.player1.isPlaying;
+    const player2Playing = state.player2.isPlaying;
+    
+    if (player1Playing || player2Playing) {
+      this.pause();
+    } else {
+      this.player1.play();
+      this.player2.play();
+      this.updateState({
+        player1: { ...this.state.player1, isPlaying: true },
+        player2: { ...this.state.player2, isPlaying: true }
+      });
+    }
+  }
 
   setVolume(playerId: 1 | 2, volume: number): void {
     const player = playerId === 1 ? this.player1 : this.player2;
@@ -202,8 +247,8 @@ export class AudioEngine {
     gainNode.gain.value = volume;
     
     this.updateState({
-      [`player${playerId}`]: { 
-        ...this.state[`player${playerId}`], 
+      [`player${playerId}`]: {
+        ...this.state[`player${playerId}`],
         volume: volume 
       }
     });
@@ -219,20 +264,32 @@ export class AudioEngine {
     }
   }
 
-  seek(time: number): void {
-    this.player1.currentTime = time;
-    this.player2.currentTime = time;
-    
-    this.updateState({
-      player1: { 
-        ...this.state.player1, 
-        currentTime: time 
-      },
-      player2: { 
-        ...this.state.player2, 
-        currentTime: time 
-      }
-    });
+  seek(time: number, pastStagePlayback: boolean = false): void {
+    if (pastStagePlayback) {
+      // Only seek player2 when in pastStagePlayback mode
+      this.player2.currentTime = time;
+      this.updateState({
+        player2: { 
+          ...this.state.player2, 
+          currentTime: time 
+        }
+      });
+    } else {
+      // Seek both players in normal mode
+      this.player1.currentTime = time;
+      this.player2.currentTime = time;
+      
+      this.updateState({
+        player1: { 
+          ...this.state.player1, 
+          currentTime: time 
+        },
+        player2: { 
+          ...this.state.player2, 
+          currentTime: time 
+        }
+      });
+    }
   }
 
   setCallbacks(onStateChange: (state: AudioState) => void) {

@@ -10,10 +10,14 @@ const playerController = {
     fwdBtn: undefined,
     engine: undefined,
     currentTrackIndex: -1,
+    backingTrackSrc: audioFiles.player2Files[0],
     trackList: [],
+    pastStagePlayback: true,
+    pastStageTracklist: [],
     init(engine) {
         this.engine = engine;
         this.trackList = audioFiles.player1Files;
+        this.pastStageTracklist = audioFiles.pastStageFiles;
         this.playBtn = document.getElementById('play-btn');
         this.playBtn.addEventListener('click', () => this.togglePlayPause());
         this.backBtn = document.getElementById('back-btn');
@@ -34,8 +38,9 @@ const playerController = {
         this.timeSlider?.addEventListener('input', () => {
             this.handleTimeSliderChange();
         });
-        engine.loadSource(2, audioFiles.player2Files[0]);
+        engine.loadSource(2, this.backingTrack);
         this.initTrackLists();
+        this.initPastStagesList();
         this.updateTransportButtons();
     },
     formatTime(seconds) {
@@ -47,12 +52,13 @@ const playerController = {
         if (!this.engine || !this.timeSlider)
             return;
         const state = this.engine.getState();
-        const duration = state.player1.duration;
+        const duration = this.pastStagePlayback ? state.player2.duration : state.player1.duration;
         if (duration > 0) {
             const newTime = (parseFloat(this.timeSlider.value) / 100) * duration;
-            this.engine.seek(newTime);
+            this.engine.seek(newTime, this.pastStagePlayback);
         }
     },
+    // TODO dont seek the other player when in pastStagePlayback mode!!!
     updateState(state) {
         if (this.playBtn) {
             const player1Playing = state.player1.isPlaying;
@@ -66,8 +72,9 @@ const playerController = {
             this.volume2Slider.value = state.master.volume.toString();
         }
         if (this.currentTimeDisplay && this.totalTimeDisplay && this.timeSlider) {
-            const currentTime = state.player1.currentTime;
-            const duration = state.player1.duration;
+            // listen display data from player2 if in pastSubmission mode
+            const currentTime = !this.pastStagePlayback ? state.player1.currentTime : state.player2.currentTime;
+            const duration = !this.pastStagePlayback ? state.player1.duration : state.player2.duration;
             this.currentTimeDisplay.textContent = this.formatTime(currentTime);
             this.totalTimeDisplay.textContent = this.formatTime(duration);
             if (duration > 0) {
@@ -84,46 +91,56 @@ const playerController = {
         this.trackList.forEach((path, index) => {
             const li = document.createElement('li');
             li.textContent = path;
-            li.addEventListener('click', () => this.loadTrack(index));
+            li.addEventListener('click', () => this.playSubmission(index));
             list1.appendChild(li);
+        });
+    },
+    initPastStagesList() {
+        const pastStagesList = document.getElementById('past-stages-list');
+        pastStagesList.innerHTML = '';
+        this.pastStageTracklist.forEach((path, index) => {
+            const li = document.createElement('li');
+            li.textContent = path;
+            li.addEventListener('click', () => this.playPastSubmission(index));
+            pastStagesList.appendChild(li);
         });
     },
     togglePlayPause() {
         if (!this.engine)
-            return;
-        const state = this.engine.getState();
-        const player1Playing = state.player1.isPlaying;
-        const player2Playing = state.player2.isPlaying;
-        if (player1Playing || player2Playing) {
-            this.engine.pause();
+            return; // when outside constraints, freeze instead of randomy floating around!
+        if (this.pastStagePlayback) {
+            this.engine.toggleP2();
         }
         else {
-            this.engine.play();
+            this.engine.toggleBoth();
         }
     },
     nextTrack() {
         if (this.currentTrackIndex < this.trackList.length - 1) {
-            this.currentTrackIndex++;
-            const trackPath = this.trackList[this.currentTrackIndex];
-            this.engine?.loadAndPlay(1, trackPath);
-            this.updateTransportButtons();
+            this.playSubmission(this.currentTrackIndex + 1);
         }
     },
     previousTrack() {
         if (this.currentTrackIndex > 0) {
-            this.currentTrackIndex--;
-            const trackPath = this.trackList[this.currentTrackIndex];
-            this.engine?.loadAndPlay(1, trackPath);
+            this.playSubmission(this.currentTrackIndex - 1);
+        }
+    },
+    playSubmission(index) {
+        if (index >= 0 && index < this.trackList.length) {
+            if (this.pastStagePlayback) {
+                this.pastStagePlayback = false;
+            }
+            this.currentTrackIndex = index;
+            const trackPath = this.trackList[index];
+            this.engine?.playSubmission(trackPath, this.backingTrackSrc);
             this.updateTransportButtons();
         }
     },
-    loadTrack(index) {
-        if (index >= 0 && index < this.trackList.length) {
-            this.currentTrackIndex = index;
-            const trackPath = this.trackList[index];
-            this.engine?.loadAndPlay(1, trackPath);
-            this.updateTransportButtons();
+    playPastSubmission(index) {
+        if (!this.pastStagePlayback) {
+            this.pastStagePlayback = true;
         }
+        this.engine.playPastStage(this.pastStageTracklist[index]);
     },
     updateTransportButtons() {
         if (this.backBtn) {

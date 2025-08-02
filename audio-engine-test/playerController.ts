@@ -5,8 +5,10 @@ const playerController = {
   playBtn: undefined as HTMLButtonElement | undefined,
   volume1Slider: undefined as HTMLInputElement | undefined,
   volume2Slider: undefined as HTMLInputElement | undefined,
+  timeSlider: undefined as HTMLInputElement | undefined,
+  currentTimeDisplay: undefined as HTMLSpanElement | undefined,
+  totalTimeDisplay: undefined as HTMLSpanElement | undefined,
   engine: undefined as AudioEngine | undefined,
-  currentPlayer: 1 as 1 | 2,
 
   init(engine: AudioEngine) {
     this.engine = engine;
@@ -23,14 +25,39 @@ const playerController = {
       this.engine?.setMasterVolume(parseFloat(this.volume2Slider?.value || '0'));
     });
 
+    this.timeSlider = document.getElementById('time-slider') as HTMLInputElement;
+    this.currentTimeDisplay = document.getElementById('current-time') as HTMLSpanElement;
+    this.totalTimeDisplay = document.getElementById('total-time') as HTMLSpanElement;
+
+    this.timeSlider?.addEventListener('input', () => {
+      this.handleTimeSliderChange();
+    });
+
     this.initTrackLists();
   },
 
+  formatTime(seconds: number): string {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  },
+
+  handleTimeSliderChange() {
+    if (!this.engine || !this.timeSlider) return;
+    
+    const state = this.engine.getState();
+    const duration = state.player1.duration;
+    if (duration > 0) {
+      const newTime = (parseFloat(this.timeSlider.value) / 100) * duration;
+      this.engine.seek(newTime);
+    }
+  },
+
   updateState(state) {
-    // Update UI based on state changes
     if (this.playBtn) {
-      const currentPlayerState = this.currentPlayer === 1 ? state.player1 : state.player2;
-      this.playBtn.textContent = currentPlayerState.isPlaying ? 'Pause' : 'Play';
+      const player1Playing = state.player1.isPlaying;
+      const player2Playing = state.player2.isPlaying;
+      this.playBtn.textContent = (player1Playing || player2Playing) ? 'Pause' : 'Play';
     }
     
     if (this.volume1Slider) {
@@ -40,9 +67,21 @@ const playerController = {
     if (this.volume2Slider) {
       this.volume2Slider.value = state.master.volume.toString();
     }
+
+    if (this.currentTimeDisplay && this.totalTimeDisplay && this.timeSlider) {
+      const currentTime = state.player1.currentTime;
+      const duration = state.player1.duration;
+      
+      this.currentTimeDisplay.textContent = this.formatTime(currentTime);
+      this.totalTimeDisplay.textContent = this.formatTime(duration);
+      
+      if (duration > 0) {
+        const progress = (currentTime / duration) * 100;
+        this.timeSlider.value = progress.toString();
+      }
+    }
   },
 
-  /* ---------- private helpers ---------- */
   initTrackLists() {
     const list1 = document.getElementById('player-1-list') as HTMLUListElement;
     const list2 = document.getElementById('player-2-list') as HTMLUListElement;
@@ -71,14 +110,16 @@ const playerController = {
     if (!this.engine) return;
     
     const state = this.engine.getState();
-    const currentPlayerState = this.currentPlayer === 1 ? state.player1 : state.player2;
+    const player1Playing = state.player1.isPlaying;
+    const player2Playing = state.player2.isPlaying;
     
-    if (currentPlayerState.isPlaying) {
-      this.engine.pause(this.currentPlayer);
+    if (player1Playing || player2Playing) {
+      this.engine.pause(1);
+      this.engine.pause(2);
     } else {
-      this.engine.play(this.currentPlayer);
+      this.engine.play(1);
+      this.engine.play(2);
     }
   }
 };
-
 export { playerController }; 

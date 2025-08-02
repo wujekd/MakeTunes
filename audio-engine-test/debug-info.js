@@ -8,7 +8,6 @@ const debugInfo = {
             console.error('Debug elements not found');
             return;
         }
-        // Initial display
         this.updateDisplay(this.engine.getState());
     },
     updateState(state) {

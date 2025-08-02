@@ -3,8 +3,10 @@ const playerController = {
     playBtn: undefined,
     volume1Slider: undefined,
     volume2Slider: undefined,
+    timeSlider: undefined,
+    currentTimeDisplay: undefined,
+    totalTimeDisplay: undefined,
     engine: undefined,
-    currentPlayer: 1,
     init(engine) {
         this.engine = engine;
         this.playBtn = document.getElementById('play-btn');
@@ -17,13 +19,34 @@ const playerController = {
         this.volume2Slider.addEventListener('input', () => {
             this.engine?.setMasterVolume(parseFloat(this.volume2Slider?.value || '0'));
         });
+        this.timeSlider = document.getElementById('time-slider');
+        this.currentTimeDisplay = document.getElementById('current-time');
+        this.totalTimeDisplay = document.getElementById('total-time');
+        this.timeSlider?.addEventListener('input', () => {
+            this.handleTimeSliderChange();
+        });
         this.initTrackLists();
     },
+    formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    },
+    handleTimeSliderChange() {
+        if (!this.engine || !this.timeSlider)
+            return;
+        const state = this.engine.getState();
+        const duration = state.player1.duration;
+        if (duration > 0) {
+            const newTime = (parseFloat(this.timeSlider.value) / 100) * duration;
+            this.engine.seek(newTime);
+        }
+    },
     updateState(state) {
-        // Update UI based on state changes
         if (this.playBtn) {
-            const currentPlayerState = this.currentPlayer === 1 ? state.player1 : state.player2;
-            this.playBtn.textContent = currentPlayerState.isPlaying ? 'Pause' : 'Play';
+            const player1Playing = state.player1.isPlaying;
+            const player2Playing = state.player2.isPlaying;
+            this.playBtn.textContent = (player1Playing || player2Playing) ? 'Pause' : 'Play';
         }
         if (this.volume1Slider) {
             this.volume1Slider.value = state.player1.volume.toString();
@@ -31,8 +54,17 @@ const playerController = {
         if (this.volume2Slider) {
             this.volume2Slider.value = state.master.volume.toString();
         }
+        if (this.currentTimeDisplay && this.totalTimeDisplay && this.timeSlider) {
+            const currentTime = state.player1.currentTime;
+            const duration = state.player1.duration;
+            this.currentTimeDisplay.textContent = this.formatTime(currentTime);
+            this.totalTimeDisplay.textContent = this.formatTime(duration);
+            if (duration > 0) {
+                const progress = (currentTime / duration) * 100;
+                this.timeSlider.value = progress.toString();
+            }
+        }
     },
-    /* ---------- private helpers ---------- */
     initTrackLists() {
         const list1 = document.getElementById('player-1-list');
         const list2 = document.getElementById('player-2-list');
@@ -57,12 +89,15 @@ const playerController = {
         if (!this.engine)
             return;
         const state = this.engine.getState();
-        const currentPlayerState = this.currentPlayer === 1 ? state.player1 : state.player2;
-        if (currentPlayerState.isPlaying) {
-            this.engine.pause(this.currentPlayer);
+        const player1Playing = state.player1.isPlaying;
+        const player2Playing = state.player2.isPlaying;
+        if (player1Playing || player2Playing) {
+            this.engine.pause(1);
+            this.engine.pause(2);
         }
         else {
-            this.engine.play(this.currentPlayer);
+            this.engine.play(1);
+            this.engine.play(2);
         }
     }
 };

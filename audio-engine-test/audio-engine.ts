@@ -180,7 +180,6 @@ export class AudioEngine {
     
     gainNode.gain.value = volume;
     
-    // Update state
     this.updateState({
       [`player${playerId}`]: { 
         ...this.state[`player${playerId}`], 
@@ -193,14 +192,28 @@ export class AudioEngine {
     if (this.masterGain) {
       this.masterGain.gain.value = volume;
       
-      // Update state
       this.updateState({
         master: { volume: volume }
       });
     }
   }
 
-  // engine to react notifications
+  seek(time: number): void {
+    this.player1.currentTime = time;
+    this.player2.currentTime = time;
+    
+    this.updateState({
+      player1: { 
+        ...this.state.player1, 
+        currentTime: time 
+      },
+      player2: { 
+        ...this.state.player2, 
+        currentTime: time 
+      }
+    });
+  }
+
   setCallbacks(onStateChange: (state: AudioState) => void) {
     this.onStateChange = onStateChange;
   }
@@ -210,9 +223,6 @@ export class AudioEngine {
     this.onStateChange?.(this.state);
   }
 
-
-
-  // Get current state
   getState(): AudioState {
     return this.state;
   }

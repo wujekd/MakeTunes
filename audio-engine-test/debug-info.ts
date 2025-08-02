@@ -13,7 +13,6 @@ const debugInfo = {
       return;
     }
 
-    // Initial display
     this.updateDisplay(this.engine.getState());
   },
 

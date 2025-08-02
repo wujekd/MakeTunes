@@ -6,40 +6,37 @@
 </head>
 <body>
     <div class="main-container">
-        <!-- Info Top Section (Empty for now) -->
+
         <div class="info-top">
-            <h2>Audio Engine Test - Info Top Section</h2>
+            <h2>Audio Engine Test</h2>
             <div class="debug-info">
                 <div class="debug-grid">
                     <div class="debug-column">
                         <h4>Audio Engine</h4>
-                        <p>Context: <span class="debug-value">Inactive</span></p>
-                        <p>Sample Rate: <span class="debug-value">44100 Hz</span></p>
-                        <p>Buffer Size: <span class="debug-value">512</span></p>
-                        <p>CPU Load: <span class="debug-value">0%</span></p>
+                        <p>Context: <span id="debug-context" class="debug-value">Inactive</span></p>
+                        <p>Master Volume: <span id="debug-master-volume" class="debug-value">1.0</span></p>
+                        <p>Player 1 Gain: <span id="debug-player1-gain" class="debug-value">1.0</span></p>
+                        <p>Player 2 Gain: <span id="debug-player2-gain" class="debug-value">1.0</span></p>
                     </div>
                     <div class="debug-column">
                         <h4>Player 1</h4>
-                        <p>State: <span class="debug-value">Stopped</span></p>
-                        <p>Time: <span class="debug-value">0.00s</span></p>
-                        <p>Volume: <span class="debug-value">0.0</span></p>
-                        <p>Source: <span class="debug-value">None</span></p>
+                        <p>Status: <span id="debug-player1-status" class="debug-value">Stopped</span></p>
+                        <p>Source: <span id="debug-player1-source" class="debug-value">None</span></p>
+                        <p>Time: <span id="debug-player1-time" class="debug-value">0.00s / 0.0s</span></p>
+                        <p>Volume: <span id="debug-player1-volume" class="debug-value">1.0</span></p>
                     </div>
                     <div class="debug-column">
                         <h4>Player 2</h4>
-                        <p>State: <span class="debug-value">Stopped</span></p>
-                        <p>Time: <span class="debug-value">0.00s</span></p>
-                        <p>Volume: <span class="debug-value">0.0</span></p>
-                        <p>Source: <span class="debug-value">None</span></p>
+                        <p>Status: <span id="debug-player2-status" class="debug-value">Stopped</span></p>
+                        <p>Source: <span id="debug-player2-source" class="debug-value">None</span></p>
+                        <p>Time: <span id="debug-player2-time" class="debug-value">0.00s / 0.0s</span></p>
+                        <p>Volume: <span id="debug-player2-volume" class="debug-value">1.0</span></p>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- Submissions Section with Audio Players -->
         <div class="submissions-section">
-        
-            <!-- First Audio Player -->
             <div class="audio-player-section">
                 <div class="audio-player-title">Audio Player 1</div>
                 <details>
@@ -48,8 +45,6 @@
                     </ul>
                 </details>
             </div>
-            
-            <!-- Second Audio Player -->
             <div class="audio-player-section">
                 <div class="audio-player-title">Audio Player 2</div>
                 <details>

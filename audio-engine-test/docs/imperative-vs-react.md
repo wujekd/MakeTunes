@@ -111,7 +111,7 @@ const { play, pause, state } = usePlayerController();
 * **Testability** – Engine can be unit-tested by passing spy callbacks; React components remain pure.
 * **Single source of truth** – React state drives the UI; engine owns the imperative side effects.
 
-Use this pattern whenever you need to bridge React with any non-React API such as Audio, Canvas, WebGL, or WebSocket.
+Use this pattern whenever you need to bridge React with any non-React API such as Audio, Canvas, WebGL, or WebSocket. 
 
 ## Callback Flow Example
 

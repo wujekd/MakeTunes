@@ -8,13 +8,24 @@ const playerController = {
   timeSlider: undefined as HTMLInputElement | undefined,
   currentTimeDisplay: undefined as HTMLSpanElement | undefined,
   totalTimeDisplay: undefined as HTMLSpanElement | undefined,
+  backBtn: undefined as HTMLButtonElement | undefined,
+  fwdBtn: undefined as HTMLButtonElement | undefined,
   engine: undefined as AudioEngine | undefined,
+  currentTrackIndex: -1,
+  trackList: [] as string[],
 
   init(engine: AudioEngine) {
     this.engine = engine;
+    this.trackList = audioFiles.player1Files;
     
     this.playBtn = document.getElementById('play-btn') as HTMLButtonElement;
     this.playBtn.addEventListener('click', () => this.togglePlayPause());
+    
+    this.backBtn = document.getElementById('back-btn') as HTMLButtonElement;
+    this.backBtn.addEventListener('click', () => this.previousTrack());
+    
+    this.fwdBtn = document.getElementById('fwd-btn') as HTMLButtonElement;
+    this.fwdBtn.addEventListener('click', () => this.nextTrack());
     
     this.volume1Slider = document.getElementById('submission-volume') as HTMLInputElement;
     this.volume1Slider.addEventListener('input', () => {
@@ -33,7 +44,10 @@ const playerController = {
       this.handleTimeSliderChange();
     });
 
+    engine.loadSource(2, audioFiles.player2Files[0]);
+
     this.initTrackLists();
+    this.updateTransportButtons();
   },
 
   formatTime(seconds: number): string {
@@ -84,25 +98,16 @@ const playerController = {
 
   initTrackLists() {
     const list1 = document.getElementById('player-1-list') as HTMLUListElement;
-    const list2 = document.getElementById('player-2-list') as HTMLUListElement;
 
-    if (!list1 || !list2) return;
+    if (!list1) return;
 
     list1.innerHTML = '';
-    list2.innerHTML = '';
 
-    audioFiles.player1Files.forEach(path => {
+    this.trackList.forEach((path, index) => {
       const li = document.createElement('li');
       li.textContent = path;
-      li.addEventListener('click', () => this.engine?.loadAndPlay(1, path));
+      li.addEventListener('click', () => this.loadTrack(index));
       list1.appendChild(li);
-    });
-
-    audioFiles.player2Files.forEach(path => {
-      const li = document.createElement('li');
-      li.textContent = path;
-      li.addEventListener('click', () => this.engine?.loadAndPlay(2, path));
-      list2.appendChild(li);
     });
   },
 
@@ -114,11 +119,45 @@ const playerController = {
     const player2Playing = state.player2.isPlaying;
     
     if (player1Playing || player2Playing) {
-      this.engine.pause(1);
-      this.engine.pause(2);
+      this.engine.pause();
     } else {
-      this.engine.play(1);
-      this.engine.play(2);
+      this.engine.play();
+    }
+  },
+
+  nextTrack() {
+    if (this.currentTrackIndex < this.trackList.length - 1) {
+      this.currentTrackIndex++;
+      const trackPath = this.trackList[this.currentTrackIndex];
+      this.engine?.loadAndPlay(1, trackPath);
+      this.updateTransportButtons();
+    }
+  },
+
+  previousTrack() {
+    if (this.currentTrackIndex > 0) {
+      this.currentTrackIndex--;
+      const trackPath = this.trackList[this.currentTrackIndex];
+      this.engine?.loadAndPlay(1, trackPath);
+      this.updateTransportButtons();
+    }
+  },
+
+  loadTrack(index: number) {
+    if (index >= 0 && index < this.trackList.length) {
+      this.currentTrackIndex = index;
+      const trackPath = this.trackList[index];
+      this.engine?.loadAndPlay(1, trackPath);
+      this.updateTransportButtons();
+    }
+  },
+
+  updateTransportButtons() {
+    if (this.backBtn) {
+      this.backBtn.disabled = this.currentTrackIndex <= 0;
+    }
+    if (this.fwdBtn) {
+      this.fwdBtn.disabled = this.currentTrackIndex >= this.trackList.length - 1;
     }
   }
 };

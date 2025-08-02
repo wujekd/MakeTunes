@@ -6,11 +6,20 @@ const playerController = {
     timeSlider: undefined,
     currentTimeDisplay: undefined,
     totalTimeDisplay: undefined,
+    backBtn: undefined,
+    fwdBtn: undefined,
     engine: undefined,
+    currentTrackIndex: -1,
+    trackList: [],
     init(engine) {
         this.engine = engine;
+        this.trackList = audioFiles.player1Files;
         this.playBtn = document.getElementById('play-btn');
         this.playBtn.addEventListener('click', () => this.togglePlayPause());
+        this.backBtn = document.getElementById('back-btn');
+        this.backBtn.addEventListener('click', () => this.previousTrack());
+        this.fwdBtn = document.getElementById('fwd-btn');
+        this.fwdBtn.addEventListener('click', () => this.nextTrack());
         this.volume1Slider = document.getElementById('submission-volume');
         this.volume1Slider.addEventListener('input', () => {
             this.engine?.setVolume(1, parseFloat(this.volume1Slider?.value || '0'));
@@ -25,7 +34,9 @@ const playerController = {
         this.timeSlider?.addEventListener('input', () => {
             this.handleTimeSliderChange();
         });
+        engine.loadSource(2, audioFiles.player2Files[0]);
         this.initTrackLists();
+        this.updateTransportButtons();
     },
     formatTime(seconds) {
         const minutes = Math.floor(seconds / 60);
@@ -67,22 +78,14 @@ const playerController = {
     },
     initTrackLists() {
         const list1 = document.getElementById('player-1-list');
-        const list2 = document.getElementById('player-2-list');
-        if (!list1 || !list2)
+        if (!list1)
             return;
         list1.innerHTML = '';
-        list2.innerHTML = '';
-        audioFiles.player1Files.forEach(path => {
+        this.trackList.forEach((path, index) => {
             const li = document.createElement('li');
             li.textContent = path;
-            li.addEventListener('click', () => this.engine?.loadAndPlay(1, path));
+            li.addEventListener('click', () => this.loadTrack(index));
             list1.appendChild(li);
-        });
-        audioFiles.player2Files.forEach(path => {
-            const li = document.createElement('li');
-            li.textContent = path;
-            li.addEventListener('click', () => this.engine?.loadAndPlay(2, path));
-            list2.appendChild(li);
         });
     },
     togglePlayPause() {
@@ -92,12 +95,42 @@ const playerController = {
         const player1Playing = state.player1.isPlaying;
         const player2Playing = state.player2.isPlaying;
         if (player1Playing || player2Playing) {
-            this.engine.pause(1);
-            this.engine.pause(2);
+            this.engine.pause();
         }
         else {
-            this.engine.play(1);
-            this.engine.play(2);
+            this.engine.play();
+        }
+    },
+    nextTrack() {
+        if (this.currentTrackIndex < this.trackList.length - 1) {
+            this.currentTrackIndex++;
+            const trackPath = this.trackList[this.currentTrackIndex];
+            this.engine?.loadAndPlay(1, trackPath);
+            this.updateTransportButtons();
+        }
+    },
+    previousTrack() {
+        if (this.currentTrackIndex > 0) {
+            this.currentTrackIndex--;
+            const trackPath = this.trackList[this.currentTrackIndex];
+            this.engine?.loadAndPlay(1, trackPath);
+            this.updateTransportButtons();
+        }
+    },
+    loadTrack(index) {
+        if (index >= 0 && index < this.trackList.length) {
+            this.currentTrackIndex = index;
+            const trackPath = this.trackList[index];
+            this.engine?.loadAndPlay(1, trackPath);
+            this.updateTransportButtons();
+        }
+    },
+    updateTransportButtons() {
+        if (this.backBtn) {
+            this.backBtn.disabled = this.currentTrackIndex <= 0;
+        }
+        if (this.fwdBtn) {
+            this.fwdBtn.disabled = this.currentTrackIndex >= this.trackList.length - 1;
         }
     }
 };

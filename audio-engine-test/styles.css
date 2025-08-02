@@ -192,6 +192,18 @@ body {
     transform: scale(1.05);
 }
 
+.transport button:disabled {
+    background-color: var(--primary1-600);
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.transport button:disabled:hover {
+    background-color: var(--primary1-600);
+    transform: none;
+}
+
 #play-btn {
     width: 42px;
     height: 42px;

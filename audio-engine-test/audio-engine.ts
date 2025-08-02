@@ -129,6 +129,11 @@ export class AudioEngine {
     player.src = src;
     player.load();
     
+    // If loading player1, reset player2 to sync them
+    if (playerId === 1) {
+      this.player2.currentTime = 0;
+    }
+    
     // Update state to notify React about new source
     this.updateState({
       [`player${playerId}`]: { 
@@ -137,27 +142,42 @@ export class AudioEngine {
         isPlaying: false,  // Reset play state for new source
         hasEnded: false,
         currentTime: 0
-      }
+      },
+      // Also update player2's currentTime in state if we reset it
+      ...(playerId === 1 && {
+        player2: {
+          ...this.state.player2,
+          currentTime: 0
+        }
+      })
     });
   }
 
-  play(playerId: 1 | 2): void {
-    const player = playerId === 1 ? this.player1 : this.player2;
-    player.play();
+  play(): void {
+    this.player1.play();
+    this.player2.play();
     this.updateState({
-      [`player${playerId}`]: { 
-        ...this.state[`player${playerId}`], 
+      player1: { 
+        ...this.state.player1, 
+        isPlaying: true 
+      },
+      player2: { 
+        ...this.state.player2, 
         isPlaying: true 
       }
     });
   }
 
-  pause(playerId: 1 | 2): void {
-    const player = playerId === 1 ? this.player1 : this.player2;
-    player.pause();
+  pause(): void {
+    this.player1.pause();
+    this.player2.pause();
     this.updateState({
-      [`player${playerId}`]: { 
-        ...this.state[`player${playerId}`], 
+      player1: { 
+        ...this.state.player1, 
+        isPlaying: false 
+      },
+      player2: { 
+        ...this.state.player2, 
         isPlaying: false 
       }
     });
@@ -171,8 +191,9 @@ export class AudioEngine {
 
   loadAndPlay(playerId: 1 | 2, src: string): void {
     this.loadSource(playerId, src);
-    this.play(playerId);
+    this.play();
   }
+
 
   setVolume(playerId: 1 | 2, volume: number): void {
     const player = playerId === 1 ? this.player1 : this.player2;
